@@ -1,0 +1,2268 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zidan — Rak Buku & Catatan Pribadi</title>
+  <style>
+    /* ==========================================================================
+       1. VARIABEL TEMA & RESET
+       ========================================================================== */
+    :root {
+      --bg-primary: #0b0d12;
+      --bg-secondary: #111520;
+      --bg-card: #161b28;
+      --bg-card-hover: #1c2233;
+      --bg-glass: rgba(15, 19, 29, 0.78);
+      --bg-modal: rgba(18, 22, 34, 0.92);
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-accent: rgba(139, 92, 246, 0.45);
+
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+
+      --accent-primary: #8b5cf6;
+      --accent-secondary: #22d3ee;
+      --accent-amber: #f59e0b;
+      --accent-emerald: #10b981;
+      --accent-glow: rgba(139, 92, 246, 0.28);
+
+      --shadow-card: 0 10px 30px -10px rgba(0, 0, 0, 0.6);
+      --shadow-glow: 0 14px 36px -8px rgba(139, 92, 246, 0.35);
+
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --radius-pill: 999px;
+
+      --nav-height: 68px;
+      --transition-fast: 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+      --transition-med: 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    [data-theme="light"] {
+      --bg-primary: #f8fafc;
+      --bg-secondary: #eef2f7;
+      --bg-card: #ffffff;
+      --bg-card-hover: #f1f5f9;
+      --bg-glass: rgba(248, 250, 252, 0.82);
+      --bg-modal: rgba(255, 255, 255, 0.94);
+      --border-subtle: rgba(15, 23, 42, 0.1);
+      --border-accent: rgba(124, 58, 237, 0.4);
+
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #64748b;
+
+      --accent-primary: #7c3aed;
+      --accent-secondary: #0891b2;
+      --accent-amber: #d97706;
+      --accent-emerald: #059669;
+      --accent-glow: rgba(124, 58, 237, 0.18);
+
+      --shadow-card: 0 8px 24px -8px rgba(15, 23, 42, 0.12);
+      --shadow-glow: 0 14px 32px -8px rgba(124, 58, 237, 0.25);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      font-size: 16px;
+      scroll-padding-top: calc(var(--nav-height) + 16px);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.65;
+      overflow-x: hidden;
+      transition: background-color var(--transition-med), color var(--transition-med);
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button, input, select, textarea {
+      font-family: inherit;
+      font-size: inherit;
+      color: inherit;
+    }
+
+    button {
+      cursor: pointer;
+      border: none;
+      background: none;
+    }
+
+    /* ==========================================================================
+       2. SCROLL PROGRESS BAR & BACKGROUND GLOW
+       ========================================================================== */
+    #scroll-progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 0%;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+      z-index: 1200;
+      transition: width 0.08s linear;
+      box-shadow: 0 0 10px var(--accent-primary);
+    }
+
+    .bg-orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(110px);
+      opacity: 0.16;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .bg-orb-1 {
+      width: 360px;
+      height: 360px;
+      background: var(--accent-primary);
+      top: -100px;
+      right: -80px;
+    }
+
+    .bg-orb-2 {
+      width: 320px;
+      height: 320px;
+      background: var(--accent-secondary);
+      bottom: 8%;
+      left: -100px;
+    }
+
+    /* ==========================================================================
+       3. CONTAINER & SECTION LAYOUT
+       ========================================================================== */
+    .container {
+      width: 100%;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 1.25rem;
+    }
+
+    section {
+      padding: 4.5rem 0;
+    }
+
+    .section-header {
+      margin-bottom: 2rem;
+    }
+
+    .section-eyebrow {
+      display: inline-block;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent-secondary);
+      margin-bottom: 0.4rem;
+    }
+
+    .section-title {
+      font-size: clamp(1.6rem, 4vw, 2.2rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+
+    .section-desc {
+      color: var(--text-secondary);
+      margin-top: 0.5rem;
+      max-width: 60ch;
+      font-size: 0.96rem;
+    }
+
+    /* Scroll Reveal */
+    .reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1), transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .reveal.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ==========================================================================
+       4. NAVBAR STICKY & HAMBURGER
+       ========================================================================== */
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      height: var(--nav-height);
+      background: var(--bg-glass);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border-subtle);
+      transition: background-color var(--transition-med), border-color var(--transition-med);
+    }
+
+    .nav-inner {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .nav-brand {
+      font-weight: 800;
+      font-size: 1.15rem;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+    }
+
+    .brand-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+      box-shadow: 0 0 12px var(--accent-primary);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      list-style: none;
+    }
+
+    .nav-link {
+      padding: 0.45rem 0.85rem;
+      border-radius: var(--radius-pill);
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      transition: color var(--transition-fast), background-color var(--transition-fast);
+    }
+
+    .nav-link:hover {
+      color: var(--text-primary);
+      background: rgba(139, 92, 246, 0.1);
+    }
+
+    .nav-link.active {
+      color: #ffffff;
+      background: linear-gradient(135deg, var(--accent-primary), #6d28d9);
+      box-shadow: 0 4px 14px rgba(139, 92, 246, 0.35);
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .icon-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-primary);
+      transition: transform var(--transition-fast), border-color var(--transition-fast), background-color var(--transition-fast);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .icon-btn:hover {
+      border-color: var(--border-accent);
+      transform: translateY(-1px);
+    }
+
+    /* Hamburger Icon morphing ke X */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .hamburger span {
+      display: block;
+      width: 20px;
+      height: 2px;
+      background: var(--text-primary);
+      border-radius: 2px;
+      transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.2s ease;
+      transform-origin: center;
+    }
+
+    .hamburger.is-open span:nth-child(1) {
+      transform: translateY(7px) rotate(45deg);
+    }
+
+    .hamburger.is-open span:nth-child(2) {
+      opacity: 0;
+      transform: scaleX(0);
+    }
+
+    .hamburger.is-open span:nth-child(3) {
+      transform: translateY(-7px) rotate(-45deg);
+    }
+
+    /* Mobile Drawer */
+    @media (max-width: 768px) {
+      .hamburger {
+        display: inline-flex;
+      }
+
+      .nav-links {
+        position: fixed;
+        top: var(--nav-height);
+        left: 0;
+        right: 0;
+        flex-direction: column;
+        align-items: stretch;
+        padding: 1rem 1.25rem 1.5rem;
+        background: var(--bg-glass);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        border-bottom: 1px solid var(--border-subtle);
+        transform: translateY(-120%);
+        opacity: 0;
+        pointer-events: none;
+        transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.25s ease;
+        z-index: 999;
+      }
+
+      .nav-links.is-open {
+        transform: translateY(0);
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .nav-link {
+        padding: 0.75rem 1rem;
+        text-align: left;
+      }
+    }
+
+    /* ==========================================================================
+       5. BUTTONS & RIPPLE EFFECT
+       ========================================================================== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.72rem 1.35rem;
+      border-radius: var(--radius-pill);
+      font-weight: 600;
+      font-size: 0.92rem;
+      position: relative;
+      overflow: hidden;
+      transition: transform var(--transition-fast), box-shadow var(--transition-fast), background-color var(--transition-fast), border-color var(--transition-fast);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent-primary), #6d28d9);
+      color: #ffffff;
+      box-shadow: 0 8px 20px -6px rgba(139, 92, 246, 0.5);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 26px -6px rgba(139, 92, 246, 0.65);
+    }
+
+    .btn-secondary {
+      background: var(--bg-card);
+      color: var(--text-primary);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--border-accent);
+      background: var(--bg-card-hover);
+      transform: translateY(-2px);
+    }
+
+    .ripple-circle {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.32);
+      transform: scale(0);
+      animation: ripple-anim 0.55s ease-out;
+      pointer-events: none;
+    }
+
+    @keyframes ripple-anim {
+      to {
+        transform: scale(3.2);
+        opacity: 0;
+      }
+    }
+
+    /* ==========================================================================
+       6. HERO SECTION (TYPING EFFECT)
+       ========================================================================== */
+    .hero {
+      padding: 5.5rem 0 4rem;
+      min-height: calc(78vh - var(--nav-height));
+      display: flex;
+      align-items: center;
+    }
+
+    .hero-card {
+      background: linear-gradient(145deg, var(--bg-card), var(--bg-secondary));
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: clamp(2rem, 5vw, 3.5rem);
+      box-shadow: var(--shadow-card);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary), var(--accent-amber));
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.35rem 0.85rem;
+      border-radius: var(--radius-pill);
+      background: rgba(139, 92, 246, 0.14);
+      border: 1px solid rgba(139, 92, 246, 0.3);
+      color: var(--accent-secondary);
+      font-size: 0.82rem;
+      font-weight: 600;
+      margin-bottom: 1.25rem;
+    }
+
+    .hero-title {
+      font-size: clamp(2.1rem, 6vw, 3.4rem);
+      font-weight: 850;
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+      margin-bottom: 0.85rem;
+    }
+
+    .gradient-text {
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .typing-cursor {
+      display: inline-block;
+      width: 3px;
+      height: 0.9em;
+      background: var(--accent-secondary);
+      margin-left: 4px;
+      vertical-align: -0.08em;
+      animation: blink-cursor 0.85s step-end infinite;
+    }
+
+    @keyframes blink-cursor {
+      50% { opacity: 0; }
+    }
+
+    .hero-tagline {
+      font-size: clamp(1.05rem, 2.5vw, 1.3rem);
+      color: var(--text-secondary);
+      min-height: 2em;
+      margin-bottom: 1.75rem;
+      max-width: 58ch;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.85rem;
+    }
+
+    /* ==========================================================================
+       7. TENTANG AKU
+       ========================================================================== */
+    .about-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.1rem;
+    }
+
+    .about-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 1.4rem;
+      box-shadow: var(--shadow-card);
+      transition: transform var(--transition-fast), border-color var(--transition-fast);
+    }
+
+    .about-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--border-accent);
+    }
+
+    .about-label {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent-secondary);
+      font-weight: 700;
+      margin-bottom: 0.45rem;
+    }
+
+    .about-value {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    /* ==========================================================================
+       8. STATISTIK & TARGET TAHUNAN
+       ========================================================================== */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 1.4rem;
+      box-shadow: var(--shadow-card);
+    }
+
+    .stat-number {
+      font-size: clamp(1.9rem, 4vw, 2.5rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      background: linear-gradient(135deg, var(--text-primary), var(--accent-secondary));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      line-height: 1.1;
+    }
+
+    .stat-label {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      margin-top: 0.35rem;
+    }
+
+    .goal-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 1.4rem 1.5rem;
+      box-shadow: var(--shadow-card);
+    }
+
+    .goal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 0.85rem;
+    }
+
+    .goal-title {
+      font-weight: 700;
+      font-size: 1rem;
+    }
+
+    .goal-meta {
+      font-size: 0.9rem;
+      color: var(--accent-secondary);
+      font-weight: 600;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 12px;
+      border-radius: var(--radius-pill);
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-subtle);
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: var(--radius-pill);
+      background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+      transition: width 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+      box-shadow: 0 0 14px var(--accent-glow);
+    }
+
+    /* ==========================================================================
+       9. RAK BUKU (FILTER, SEARCH, SORT, GRID, FORM TAMBAH)
+       ========================================================================== */
+    .shelf-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-bottom: 1.75rem;
+    }
+
+    .filter-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .filter-pill {
+      padding: 0.48rem 1rem;
+      border-radius: var(--radius-pill);
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+      font-size: 0.88rem;
+      font-weight: 600;
+      position: relative;
+      overflow: hidden;
+      transition: all var(--transition-fast);
+    }
+
+    .filter-pill:hover {
+      border-color: var(--border-accent);
+      color: var(--text-primary);
+    }
+
+    .filter-pill.active {
+      background: var(--accent-primary);
+      border-color: var(--accent-primary);
+      color: #ffffff;
+      box-shadow: 0 4px 14px var(--accent-glow);
+    }
+
+    .search-sort-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 0.75rem;
+    }
+
+    @media (max-width: 600px) {
+      .search-sort-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 0.68rem 1rem;
+      border-radius: var(--radius-sm);
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-primary);
+      outline: none;
+      transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+    }
+
+    .input-field:focus {
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    .books-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.25rem;
+      position: relative;
+    }
+
+    /* Kartu Buku & Mikro Animasi */
+    .book-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 1.2rem;
+      display: flex;
+      gap: 1rem;
+      cursor: pointer;
+      box-shadow: var(--shadow-card);
+      transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+                  box-shadow 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+                  border-color 0.28s ease,
+                  background-color 0.28s ease;
+      will-change: transform;
+    }
+
+    .book-card:hover,
+    .book-card:focus-visible {
+      transform: translateY(-6px);
+      border-color: var(--border-accent);
+      background: var(--bg-card-hover);
+      box-shadow: var(--shadow-glow);
+      outline: none;
+    }
+
+    .book-cover {
+      flex-shrink: 0;
+      width: 78px;
+      height: 112px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 850;
+      font-size: 1.4rem;
+      letter-spacing: 0.04em;
+      color: #ffffff;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+      transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+      user-select: none;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .book-cover img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .book-card:hover .book-cover,
+    .book-card:active .book-cover {
+      transform: rotate(-3deg) scale(1.04);
+    }
+
+    .book-info {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .book-title {
+      font-size: 1.02rem;
+      font-weight: 700;
+      line-height: 1.3;
+      color: var(--text-primary);
+    }
+
+    .book-author {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    .book-meta-row {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      margin-top: 0.2rem;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.2rem 0.62rem;
+      border-radius: var(--radius-pill);
+      font-size: 0.74rem;
+      font-weight: 700;
+    }
+
+    .status-tamat {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--accent-emerald);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+    }
+
+    .status-baca {
+      background: rgba(34, 211, 238, 0.15);
+      color: var(--accent-secondary);
+      border: 1px solid rgba(34, 211, 238, 0.35);
+      animation: status-pulse 2.2s ease-in-out infinite;
+    }
+
+    .status-beli {
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--accent-amber);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+    }
+
+    @keyframes status-pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(34, 211, 238, 0.35); }
+      50% { box-shadow: 0 0 0 6px rgba(34, 211, 238, 0); }
+    }
+
+    .book-rating-pill {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--accent-amber);
+    }
+
+    .book-note-preview {
+      font-size: 0.84rem;
+      color: var(--text-secondary);
+      margin-top: 0.25rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .book-hint {
+      margin-top: auto;
+      padding-top: 0.35rem;
+      font-size: 0.75rem;
+      color: var(--accent-primary);
+      font-weight: 600;
+    }
+
+    .empty-state {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 2.5rem 1rem;
+      background: var(--bg-card);
+      border: 1px dashed var(--border-subtle);
+      border-radius: var(--radius-md);
+      color: var(--text-secondary);
+    }
+
+    /* Form Tambah Buku */
+    .add-book-box {
+      margin-top: 2.5rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 1.5rem;
+      box-shadow: var(--shadow-card);
+    }
+
+    .add-book-title {
+      font-size: 1.12rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 0.9rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .form-group.full-width {
+      grid-column: 1 / -1;
+    }
+
+    .form-label {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    .form-actions {
+      margin-top: 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    /* ==========================================================================
+       10. KONTAK & FOOTER
+       ========================================================================== */
+    .contact-card {
+      background: linear-gradient(135deg, var(--bg-card), var(--bg-secondary));
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.25rem;
+      box-shadow: var(--shadow-card);
+    }
+
+    .contact-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    footer {
+      padding: 2rem 0 3rem;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.86rem;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    /* ==========================================================================
+       11. MODAL DETAIL & ANALISIS BUKU
+       ========================================================================== */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(5, 7, 12, 0.72);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      z-index: 1500;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.28s ease;
+    }
+
+    .modal-backdrop.is-open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-dialog {
+      width: 100%;
+      max-width: 680px;
+      max-height: 88vh;
+      overflow-y: auto;
+      background: var(--bg-modal);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 1.6rem;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65);
+      transform: scale(0.92) translateY(14px);
+      opacity: 0;
+      transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.28s ease;
+    }
+
+    .modal-backdrop.is-open .modal-dialog {
+      transform: scale(1) translateY(0);
+      opacity: 1;
+    }
+
+    .modal-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .modal-book-head {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .modal-tabs {
+      display: flex;
+      gap: 0.5rem;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .tab-btn {
+      padding: 0.45rem 1rem;
+      border-radius: var(--radius-pill);
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      transition: all var(--transition-fast);
+    }
+
+    .tab-btn.active {
+      background: var(--accent-primary);
+      color: #ffffff;
+    }
+
+    /* Bintang Rating Berurutan */
+    .star-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      margin: 0.4rem 0;
+    }
+
+    .star-icon {
+      width: 20px;
+      height: 20px;
+      color: var(--text-muted);
+      opacity: 0.35;
+      transform: scale(0.75);
+      transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), color 0.3s ease, opacity 0.3s ease;
+    }
+
+    .star-icon.lit {
+      color: var(--accent-amber);
+      opacity: 1;
+      transform: scale(1);
+      filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.45));
+    }
+
+    .analysis-draft-badge {
+      display: inline-block;
+      padding: 0.25rem 0.7rem;
+      border-radius: var(--radius-pill);
+      background: rgba(245, 158, 11, 0.16);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      color: var(--accent-amber);
+      font-size: 0.76rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    .analysis-block {
+      margin-bottom: 1.15rem;
+    }
+
+    .analysis-block h4 {
+      font-size: 0.86rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--accent-secondary);
+      margin-bottom: 0.35rem;
+    }
+
+    .analysis-block p, .analysis-block li {
+      font-size: 0.94rem;
+      color: var(--text-primary);
+    }
+
+    .analysis-block ul, .analysis-block ol {
+      padding-left: 1.2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .pros-cons-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 0.85rem;
+    }
+
+    .pros-box, .cons-box {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 0.9rem;
+    }
+
+    .aspect-bars {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .aspect-row {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+
+    .aspect-label-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.86rem;
+      font-weight: 600;
+    }
+
+    .aspect-track {
+      height: 9px;
+      border-radius: var(--radius-pill);
+      background: var(--bg-secondary);
+      overflow: hidden;
+    }
+
+    .aspect-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: var(--radius-pill);
+      background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+      transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .locked-notice {
+      padding: 1.15rem;
+      border-radius: var(--radius-md);
+      background: var(--bg-secondary);
+      border: 1px dashed var(--border-subtle);
+      color: var(--text-secondary);
+      text-align: center;
+      font-weight: 600;
+    }
+
+    /* ==========================================================================
+       12. BACK TO TOP & TOAST
+       ========================================================================== */
+    #back-to-top {
+      position: fixed;
+      right: 1.25rem;
+      bottom: 1.25rem;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent-primary), #6d28d9);
+      color: #ffffff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 22px rgba(139, 92, 246, 0.45);
+      opacity: 0;
+      transform: translateY(16px);
+      pointer-events: none;
+      transition: opacity 0.25s ease, transform 0.25s ease;
+      z-index: 1100;
+    }
+
+    #back-to-top.visible {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--bg-card);
+      color: var(--text-primary);
+      border: 1px solid var(--border-accent);
+      padding: 0.7rem 1.2rem;
+      border-radius: var(--radius-pill);
+      font-size: 0.88rem;
+      font-weight: 600;
+      box-shadow: var(--shadow-glow);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease, transform 0.25s ease;
+      z-index: 1600;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ==========================================================================
+       13. PREFERS-REDUCED-MOTION
+       ========================================================================== */
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+      .reveal {
+        opacity: 1;
+        transform: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Progress bar tipis di atas halaman -->
+  <div id="scroll-progress" aria-hidden="true"></div>
+  <div class="bg-orb bg-orb-1" aria-hidden="true"></div>
+  <div class="bg-orb bg-orb-2" aria-hidden="true"></div>
+
+  <!-- NAVBAR STICKY -->
+  <header class="navbar">
+    <div class="container nav-inner">
+      <a href="#beranda" class="nav-brand">
+        <span class="brand-dot" aria-hidden="true"></span>
+        <span id="nav-brand-name">Zidan</span>
+      </a>
+
+      <nav aria-label="Navigasi utama">
+        <ul class="nav-links" id="nav-links">
+          <li><a href="#beranda" class="nav-link active" data-section="beranda">Beranda</a></li>
+          <li><a href="#tentang" class="nav-link" data-section="tentang">Tentang</a></li>
+          <li><a href="#rak-buku" class="nav-link" data-section="rak-buku">Rak Buku</a></li>
+          <li><a href="#statistik" class="nav-link" data-section="statistik">Statistik</a></li>
+          <li><a href="#kontak" class="nav-link" data-section="kontak">Kontak</a></li>
+        </ul>
+      </nav>
+
+      <div class="nav-actions">
+        <button id="theme-toggle" class="icon-btn" type="button" aria-label="Ubah tema terang atau gelap" title="Ubah tema">
+          <span id="theme-icon" aria-hidden="true">☀️</span>
+        </button>
+        <button id="hamburger-btn" class="icon-btn hamburger" type="button" aria-label="Buka menu navigasi" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- BERANDA / HERO -->
+    <section id="beranda" class="hero">
+      <div class="container">
+        <div class="hero-card reveal is-visible">
+          <span class="hero-badge">📚 Rak Buku &amp; Catatan Pribadi</span>
+          <h1 class="hero-title">
+            Halo, aku <span id="hero-name" class="gradient-text"></span><span class="typing-cursor" aria-hidden="true"></span>
+          </h1>
+          <p class="hero-tagline" id="hero-tagline"></p>
+          <div class="hero-actions">
+            <a href="#rak-buku" class="btn btn-primary">Jelajahi Rak Buku</a>
+            <a href="#statistik" class="btn btn-secondary">Lihat Statistik Baca</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TENTANG AKU -->
+    <section id="tentang">
+      <div class="container">
+        <div class="section-header reveal">
+          <span class="section-eyebrow">Profil Singkat</span>
+          <h2 class="section-title">Tentang Aku</h2>
+        </div>
+        <div class="about-grid">
+          <article class="about-card reveal">
+            <div class="about-label">Nama</div>
+            <div class="about-value" id="about-name">Zidan</div>
+          </article>
+          <article class="about-card reveal">
+            <div class="about-label">Bio Singkat</div>
+            <div class="about-value" id="about-bio">Gw tuh paling berpengaruh sih</div>
+          </article>
+          <article class="about-card reveal">
+            <div class="about-label">Hobi &amp; Minat</div>
+            <div class="about-value" id="about-hobby">Sudah pasti membaca lah ya</div>
+          </article>
+          <article class="about-card reveal">
+            <div class="about-label">Sosial Media</div>
+            <div class="about-value" id="about-social">TikTok: @ndeyedeyeye</div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- RAK BUKU -->
+    <section id="rak-buku">
+      <div class="container">
+        <div class="section-header reveal">
+          <span class="section-eyebrow">Koleksi &amp; Catatan</span>
+          <h2 class="section-title">Rak Buku</h2>
+          <p class="section-desc">Klik kartu buku untuk melihat detail catatan, atau bedah analisis khusus buku yang sudah tamat.</p>
+        </div>
+
+        <div class="shelf-controls reveal">
+          <div class="filter-row" role="tablist" aria-label="Filter status buku">
+            <button type="button" class="filter-pill active" data-filter="Semua">Semua</button>
+            <button type="button" class="filter-pill" data-filter="Sudah dibeli">Dibeli</button>
+            <button type="button" class="filter-pill" data-filter="Sedang dibaca">Sedang dibaca</button>
+            <button type="button" class="filter-pill" data-filter="Tamat">Tamat</button>
+          </div>
+          <div class="search-sort-row">
+            <input type="search" id="search-input" class="input-field" placeholder="Cari judul, penulis, atau catatan..." aria-label="Cari buku" />
+            <select id="sort-select" class="input-field" aria-label="Urutkan buku">
+              <option value="default">Urutan: Default</option>
+              <option value="rating-desc">Rating: Tertinggi</option>
+              <option value="rating-asc">Rating: Terendah</option>
+              <option value="title-asc">Judul: A – Z</option>
+              <option value="title-desc">Judul: Z – A</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="books-grid" class="books-grid reveal"></div>
+
+        <!-- Form Tambah Buku Baru -->
+        <div class="add-book-box reveal">
+          <h3 class="add-book-title">+ Tambah Buku Baru ke Rak</h3>
+          <form id="add-book-form" class="form-grid">
+            <div class="form-group">
+              <label for="new-title" class="form-label">Judul Buku</label>
+              <input id="new-title" class="input-field" type="text" required placeholder="Contoh: Dunia Sophie" />
+            </div>
+            <div class="form-group">
+              <label for="new-author" class="form-label">Penulis</label>
+              <input id="new-author" class="input-field" type="text" required placeholder="Contoh: Jostein Gaarder" />
+            </div>
+            <div class="form-group">
+              <label for="new-status" class="form-label">Status</label>
+              <select id="new-status" class="input-field">
+                <option value="Sudah dibeli">Sudah dibeli</option>
+                <option value="Sedang dibaca">Sedang dibaca</option>
+                <option value="Tamat">Tamat</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="new-rating" class="form-label">Rating (1 – 5, opsional)</label>
+              <input id="new-rating" class="input-field" type="number" min="1" max="5" step="0.1" placeholder="Contoh: 4.5" />
+            </div>
+            <div class="form-group full-width">
+              <label for="new-note" class="form-label">Catatan Singkat</label>
+              <input id="new-note" class="input-field" type="text" placeholder="Kesan atau ekspektasi tentang buku ini..." />
+            </div>
+            <div class="form-actions full-width">
+              <button type="submit" class="btn btn-primary">Simpan Buku</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- STATISTIK -->
+    <section id="statistik">
+      <div class="container">
+        <div class="section-header reveal">
+          <span class="section-eyebrow">Progres Membaca</span>
+          <h2 class="section-title">Statistik Otomatis</h2>
+        </div>
+
+        <div class="stats-grid reveal">
+          <div class="stat-card">
+            <div class="stat-number" id="stat-total" data-target="0">0</div>
+            <div class="stat-label">Total Buku di Rak</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="stat-finished" data-target="0">0</div>
+            <div class="stat-label">Buku Tamat</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="stat-percent" data-target="0" data-suffix="%">0%</div>
+            <div class="stat-label">Persentase Tamat</div>
+          </div>
+        </div>
+
+        <div class="goal-card reveal">
+          <div class="goal-header">
+            <span class="goal-title">Target Baca Tahunan</span>
+            <span class="goal-meta" id="goal-meta-text">0 / 12 buku (0%)</span>
+          </div>
+          <div class="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="12" aria-valuenow="0" id="goal-progress-bar">
+            <div class="progress-fill" id="goal-progress-fill"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- KONTAK -->
+    <section id="kontak">
+      <div class="container">
+        <div class="contact-card reveal">
+          <div>
+            <span class="section-eyebrow">Terhubung</span>
+            <h2 class="section-title">Ngobrol Soal Buku?</h2>
+            <p class="section-desc" id="contact-desc">Mampir atau sapa langsung lewat TikTok: @ndeyedeyeye</p>
+          </div>
+          <div class="contact-actions">
+            <a id="tiktok-link" href="https://www.tiktok.com/@ndeyedeyeye" target="_blank" rel="noopener noreferrer" class="btn btn-primary">
+              Buka TikTok (@ndeyedeyeye)
+            </a>
+            <button type="button" id="copy-social-btn" class="btn btn-secondary">Salin Username</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>&copy; <span id="footer-year"></span> <span id="footer-name">Zidan</span>. Dibuat dalam satu file HTML tanpa library eksternal.</p>
+    </div>
+  </footer>
+
+  <!-- TOMBOL KEMBALI KE ATAS -->
+  <button id="back-to-top" type="button" aria-label="Kembali ke atas" title="Kembali ke atas">↑</button>
+
+  <!-- MODAL DETAIL BUKU & ANALISIS -->
+  <div id="book-modal-backdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-book-title" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-top">
+        <div class="modal-book-head">
+          <div id="modal-cover" class="book-cover"></div>
+          <div>
+            <h3 id="modal-book-title" class="book-title" style="font-size: 1.25rem;"></h3>
+            <p id="modal-book-author" class="book-author"></p>
+            <div id="modal-stars" class="star-row" aria-label="Rating buku"></div>
+          </div>
+        </div>
+        <button id="modal-close-btn" class="icon-btn" type="button" aria-label="Tutup modal">✕</button>
+      </div>
+
+      <div id="modal-tabs" class="modal-tabs">
+        <button type="button" class="tab-btn active" data-tab="detail">Detail Buku</button>
+        <button type="button" class="tab-btn" data-tab="analisis" id="tab-analisis-btn">Analisis Mendalam</button>
+      </div>
+
+      <div id="tab-panel-detail"></div>
+      <div id="tab-panel-analisis" hidden></div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFIKASI -->
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    /* ==========================================================================
+       AREA EDIT DATA UTAMA (Cukup ubah bagian ini untuk memperbarui konten)
+       ========================================================================== */
+
+    // 1. Data Diri & Target Tahunan
+    const PROFILE_DATA = {
+      nama: "Zidan",
+      tagline: "Gw tuh paling berpengaruh sih — dan sudah pasti hobi membaca.",
+      bio: "Gw Zidan, orangnya suka baca, terutama buku yang bikin mikir keras soal bahasa, hidup, dan makna. Buat gw, buku bagus itu yang masih kepikiran berhari-hari setelah ditutup. Web ini rak buku pribadi gw, tempat nyimpen apa yang udah gw baca dan apa yang gw pikirin tentangnya.",
+      hobi: "Sudah pasti membaca lah ya",
+      sosmedLabel: "TikTok: ndeyedeyeye",
+      tiktokUsername: "ndeyedeyeye",
+      tiktokUrl: "https://www.tiktok.com/@ndeyedeyeye",
+      targetTahunan: 12
+    };
+
+    // 2. Daftar Buku Awal (id unik harus cocok dengan bookId pada BOOK_ANALYSES)
+    const INITIAL_BOOKS = [
+      {
+        id: "tractatus-wittgenstein",
+        judul: "Tractatus Logico Philosophicus",
+        penulis: "Ludwig Wittgenstein",
+        status: "Tamat",
+        rating: 4.5,
+        catatan: "Ini buku tuh gilak sih, berani untuk menjelaskan hal yang bahkan di dalam bukunya dikatakan harus didiamkan",
+        cover: "https://covers.openlibrary.org/b/id/12621893-L.jpg",
+        gradient: "linear-gradient(135deg, #6d28d9, #0891b2)"
+      },
+      {
+        id: "siddhartha-hesse",
+        judul: "Siddhartha",
+        penulis: "Hermann Hesse",
+        status: "Tamat",
+        rating: 4.1,
+        catatan: "merupakan buku dengan petualangan terbaik seorang karakter sih",
+        cover: "https://covers.openlibrary.org/b/id/6562532-L.jpg",
+        gradient: "linear-gradient(135deg, #d97706, #be185d)"
+      },
+      {
+        id: "dorian-gray-wilde",
+        judul: "The Picture of Dorian Gray",
+        penulis: "Oscar Wilde",
+        status: "Sedang dibaca",
+        rating: null,
+        catatan: "ekspektasiku tinggi buat buku ini",
+        cover: "https://covers.openlibrary.org/b/id/14314700-L.jpg",
+        gradient: "linear-gradient(135deg, #0f766e, #4338ca)"
+      }
+    ];
+
+    // 3. Array Analisis Khusus Buku Berstatus "Tamat"
+    const BOOK_ANALYSES = [
+      {
+        bookId: "tractatus-wittgenstein",
+        isDraft: false,
+        ringkasan: "Karya filsafat ringkas berbentuk tujuh proposisi utama beserta turunannya yang memetakan hubungan antara bahasa, pikiran, logika, dan realitas dunia.",
+        ideUtama: "Batas bahasaku adalah batas duniaku; filsafat bukan teori tentang alam, melainkan aktivitas menjernihkan pikiran agar jelas mana yang bisa dikatakan dan mana yang hanya bisa ditunjukkan.",
+        pelajaran: [
+          "Bahasa bekerja seperti gambar logis (picture theory) yang memproyeksikan fakta-fakta di dunia.",
+          "Banyak kebingungan filsafat muncul karena kita memaksa bahasa membicarakan hal di luar batas logikanya.",
+          "Hal-hal terdalam seperti etika dan makna hidup sering kali tidak bisa dirumuskan lewat proposisi biasa, melainkan dirasakan dan ditunjukkan."
+        ],
+        kelebihan: "Struktur penulisan sangat presisi, padat, dan memaksa pembaca berpikir tajam pada setiap kalimat.",
+        kekurangan: "Sangat abstrak dan padat sehingga butuh dibaca pelan-pelan serta diulang untuk menangkap konteks logikanya.",
+        cocokUntuk: "Pembaca yang suka filsafat analitik, logika, linguistik, dan tantangan intelektual.",
+        skor: { isi: 95, bahasa: 88, manfaat: 85 },
+        pendapatPribadi: "Yang bikin gw kagum, Wittgenstein nulis seluruh buku buat ngejelasin batas bahasa, terus di ujungnya bilang apa yang nggak bisa diomongin mending didiemin. Itu berani banget, kayak ngebangun tangga sampe atas terus nendang tangganya. Bacanya nggak enak dan harus pelan-pelan, tapi justru itu yang bikin gw ngerasa otak lagi dilatih. Bukan buku buat semua orang, tapi buat yang suka mikir, ini gilak sih."
+      },
+      {
+        bookId: "siddhartha-hesse",
+        isDraft: false,
+        ringkasan: "Novel filosofis tentang perjalanan spiritual pemuda Brahmana bernama Siddhartha yang meninggalkan zona nyaman untuk mencari makna hidup sejati melalui berbagai fase kehidupan.",
+        ideUtama: "Kebijaksanaan tidak bisa ditransfer lewat ajaran atau kata-kata orang lain; ia harus dialami sendiri lewat jatuh bangun hidup dan kesadaran penuh pada momen kini.",
+        pelajaran: [
+          "Pengetahuan bisa diajarkan, tetapi kebijaksanaan hanya lahir dari pengalaman langsung.",
+          "Kesempurnaan hidup bukan berarti menolak sisi duniawi sepenuhnya, melainkan memahami keutuhan suka dan duka.",
+          "Belajar mendengarkan seperti sungai membantu kita menerima perubahan tanpa kehilangan ketenangan batin."
+        ],
+        kelebihan: "Alur perjalanan karakter terasa puitis, mengalir, dan emosional tanpa terkesan menggurui.",
+        kekurangan: "Tempo cerita di beberapa fase kontemplasi terasa lambat bagi pembaca yang mencari konflik eksternal cepat.",
+        cocokUntuk: "Siapa saja yang sedang mencari arah hidup, menyukai fiksi reflektif, atau tertarik pada tema pencarian jati diri.",
+        skor: { isi: 90, bahasa: 92, manfaat: 89 },
+        pendapatPribadi: "Buat gw ini petualangan karakter terbaik yang pernah gw baca. Siddhartha nyobain jadi pertapa, pedagang, sampai orang yang tenggelam di nafsu, dan nggak ada satu fase pun yang kerasa sia-sia. Gw suka karena bukunya nggak nyeramahin, tapi ngajak kita ngerasain sendiri kalau jawaban itu nggak bisa dikasih orang lain. Tempo di tengah agak pelan, tapi akhirnya kerasa worth it."
+      }
+    ];
+
+    /* ==========================================================================
+       STATE & HELPER STORAGE
+       ========================================================================== */
+    const STORAGE_KEYS = {
+      theme: "zidan_bookshelf_theme_v1",
+      customBooks: "zidan_bookshelf_custom_books_v1"
+    };
+
+    const COVER_GRADIENTS = [
+      "linear-gradient(135deg, #7c3aed, #2563eb)",
+      "linear-gradient(135deg, #059669, #0891b2)",
+      "linear-gradient(135deg, #db2777, #9333ea)",
+      "linear-gradient(135deg, #ea580c, #d97706)",
+      "linear-gradient(135deg, #4f46e5, #06b6d4)"
+    ];
+
+    let state = {
+      books: [],
+      filter: "Semua",
+      search: "",
+      sort: "default",
+      activeBookId: null,
+      activeTab: "detail",
+      statsAnimated: false
+    };
+
+    function safeStorageGet(key, fallback = null) {
+      try {
+        const val = localStorage.getItem(key);
+        return val !== null ? val : fallback;
+      } catch (e) {
+        return fallback;
+      }
+    }
+
+    function safeStorageSet(key, value) {
+      try {
+        localStorage.setItem(key, value);
+      } catch (e) {
+        // Abaikan jika penyimpanan diblokir browser
+      }
+    }
+
+    function escapeHTML(str) {
+      return String(str ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function getInitials(title) {
+      const words = String(title).trim().split(/\s+/).filter(Boolean);
+      if (words.length === 0) return "BK";
+      if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
+      return (words[0][0] + words[1][0]).toUpperCase();
+    }
+
+    // Gambar cover: kalau book.cover kosong atau gagal dimuat, otomatis balik ke gradient + inisial
+    function coverImgHTML(book) {
+      if (!book.cover) return "";
+      return `<img src="${escapeHTML(book.cover)}" alt="Cover ${escapeHTML(book.judul)}" loading="lazy" onerror="this.remove()">`;
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById("toast");
+      toast.textContent = message;
+      toast.classList.add("show");
+      clearTimeout(showToast._timer);
+      showToast._timer = setTimeout(() => toast.classList.remove("show"), 2600);
+    }
+
+    /* ==========================================================================
+       INISIALISASI PROFIL & TEMA
+       ========================================================================== */
+    function initProfile() {
+      document.getElementById("nav-brand-name").textContent = PROFILE_DATA.nama;
+      document.getElementById("about-name").textContent = PROFILE_DATA.nama;
+      document.getElementById("about-bio").textContent = PROFILE_DATA.bio;
+      document.getElementById("about-hobby").textContent = PROFILE_DATA.hobi;
+      document.getElementById("about-social").textContent = PROFILE_DATA.sosmedLabel;
+      document.getElementById("contact-desc").textContent = `Mampir atau sapa langsung lewat ${PROFILE_DATA.sosmedLabel}`;
+
+      const tiktokLink = document.getElementById("tiktok-link");
+      tiktokLink.href = PROFILE_DATA.tiktokUrl;
+      tiktokLink.textContent = `Buka TikTok (@${PROFILE_DATA.tiktokUsername})`;
+
+      document.getElementById("footer-year").textContent = new Date().getFullYear();
+      document.getElementById("footer-name").textContent = PROFILE_DATA.nama;
+    }
+
+    function applyTheme(theme) {
+      document.documentElement.setAttribute("data-theme", theme);
+      const icon = document.getElementById("theme-icon");
+      icon.textContent = theme === "dark" ? "☀️" : "🌙";
+      safeStorageSet(STORAGE_KEYS.theme, theme);
+    }
+
+    function initTheme() {
+      const saved = safeStorageGet(STORAGE_KEYS.theme, "dark");
+      applyTheme(saved === "light" ? "light" : "dark");
+      document.getElementById("theme-toggle").addEventListener("click", () => {
+        const current = document.documentElement.getAttribute("data-theme");
+        applyTheme(current === "dark" ? "light" : "dark");
+      });
+    }
+
+    /* ==========================================================================
+       TYPING EFFECT DI HERO
+       ========================================================================== */
+    function startTypingEffect() {
+      const nameEl = document.getElementById("hero-name");
+      const tagEl = document.getElementById("hero-tagline");
+      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      if (reducedMotion) {
+        nameEl.textContent = PROFILE_DATA.nama;
+        tagEl.textContent = PROFILE_DATA.tagline;
+        return;
+      }
+
+      let i = 0;
+      const nameText = PROFILE_DATA.nama;
+      const tagText = PROFILE_DATA.tagline;
+
+      function typeName() {
+        if (i <= nameText.length) {
+          nameEl.textContent = nameText.slice(0, i);
+          i++;
+          setTimeout(typeName, 95);
+        } else {
+          let j = 0;
+          function typeTag() {
+            if (j <= tagText.length) {
+              tagEl.textContent = tagText.slice(0, j);
+              j++;
+              setTimeout(typeTag, 26);
+            }
+          }
+          setTimeout(typeTag, 220);
+        }
+      }
+      typeName();
+    }
+
+    /* ==========================================================================
+       NAVBAR, HAMBURGER, SCROLL SPY, PROGRESS BAR, BACK TO TOP
+       ========================================================================== */
+    function initNavigation() {
+      const hamburgerBtn = document.getElementById("hamburger-btn");
+      const navLinks = document.getElementById("nav-links");
+      const links = Array.from(document.querySelectorAll(".nav-link"));
+      const sections = links.map(l => document.getElementById(l.dataset.section)).filter(Boolean);
+      const progressBar = document.getElementById("scroll-progress");
+      const backToTop = document.getElementById("back-to-top");
+
+      function closeMenu() {
+        navLinks.classList.remove("is-open");
+        hamburgerBtn.classList.remove("is-open");
+        hamburgerBtn.setAttribute("aria-expanded", "false");
+      }
+
+      hamburgerBtn.addEventListener("click", () => {
+        const isOpen = navLinks.classList.toggle("is-open");
+        hamburgerBtn.classList.toggle("is-open", isOpen);
+        hamburgerBtn.setAttribute("aria-expanded", String(isOpen));
+      });
+
+      links.forEach(link => {
+        link.addEventListener("click", () => {
+          closeMenu();
+        });
+      });
+
+      function onScroll() {
+        const scrollTop = window.scrollY;
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        const pct = docHeight > 0 ? Math.min(100, (scrollTop / docHeight) * 100) : 0;
+        progressBar.style.width = `${pct}%`;
+
+        backToTop.classList.toggle("visible", scrollTop > 320);
+
+        // Scroll Spy
+        const offset = scrollTop + 130;
+        let currentId = sections[0]?.id || "beranda";
+        for (const sec of sections) {
+          if (sec.offsetTop <= offset) {
+            currentId = sec.id;
+          }
+        }
+        links.forEach(l => {
+          l.classList.toggle("active", l.dataset.section === currentId);
+        });
+      }
+
+      window.addEventListener("scroll", onScroll, { passive: true });
+      onScroll();
+
+      backToTop.addEventListener("click", () => {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
+    }
+
+    /* ==========================================================================
+       SCROLL REVEAL & RIPPLE EFFECT
+       ========================================================================== */
+    function initRevealObserver() {
+      const revealEls = document.querySelectorAll(".reveal");
+      if (!("IntersectionObserver" in window)) {
+        revealEls.forEach(el => el.classList.add("is-visible"));
+        return;
+      }
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+            if (entry.target.closest("#statistik") && !state.statsAnimated) {
+              state.statsAnimated = true;
+              updateStatistics(true);
+            }
+          }
+        });
+      }, { threshold: 0.14 });
+
+      revealEls.forEach(el => observer.observe(el));
+    }
+
+    function initRipple() {
+      document.addEventListener("click", (e) => {
+        const target = e.target.closest(".btn, .filter-pill, .icon-btn");
+        if (!target) return;
+        const rect = target.getBoundingClientRect();
+        const circle = document.createElement("span");
+        const size = Math.max(rect.width, rect.height);
+        circle.className = "ripple-circle";
+        circle.style.width = circle.style.height = `${size}px`;
+        circle.style.left = `${e.clientX - rect.left - size / 2}px`;
+        circle.style.top = `${e.clientY - rect.top - size / 2}px`;
+        target.appendChild(circle);
+        setTimeout(() => circle.remove(), 600);
+      });
+    }
+
+    /* ==========================================================================
+       DATA BUKU, FILTER, SORT, FLIP ANIMATION & RENDER
+       ========================================================================== */
+    function loadBooks() {
+      let custom = [];
+      try {
+        const raw = safeStorageGet(STORAGE_KEYS.customBooks, "[]");
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) custom = parsed;
+      } catch (e) {
+        custom = [];
+      }
+      state.books = [...INITIAL_BOOKS, ...custom];
+    }
+
+    function getFilteredSortedBooks() {
+      const q = state.search.trim().toLowerCase();
+      let list = state.books.filter(book => {
+        const matchFilter = state.filter === "Semua" || book.status === state.filter;
+        const matchSearch =
+          !q ||
+          book.judul.toLowerCase().includes(q) ||
+          book.penulis.toLowerCase().includes(q) ||
+          (book.catatan || "").toLowerCase().includes(q);
+        return matchFilter && matchSearch;
+      });
+
+      if (state.sort === "rating-desc") {
+        list.sort((a, b) => (b.rating ?? -1) - (a.rating ?? -1));
+      } else if (state.sort === "rating-asc") {
+        list.sort((a, b) => (a.rating ?? 99) - (b.rating ?? 99));
+      } else if (state.sort === "title-asc") {
+        list.sort((a, b) => a.judul.localeCompare(b.judul, "id"));
+      } else if (state.sort === "title-desc") {
+        list.sort((a, b) => b.judul.localeCompare(a.judul, "id"));
+      }
+      return list;
+    }
+
+    function getStatusClass(status) {
+      if (status === "Tamat") return "status-tamat";
+      if (status === "Sedang dibaca") return "status-baca";
+      return "status-beli";
+    }
+
+    function renderBooks(animateFlip = false) {
+      const grid = document.getElementById("books-grid");
+      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      // FLIP: Rekam posisi awal kartu yang ada
+      const prevRects = new Map();
+      if (animateFlip && !reducedMotion) {
+        grid.querySelectorAll(".book-card[data-id]").forEach(card => {
+          prevRects.set(card.dataset.id, card.getBoundingClientRect());
+        });
+      }
+
+      const books = getFilteredSortedBooks();
+      if (books.length === 0) {
+        grid.innerHTML = `<div class="empty-state">Tidak ada buku yang cocok dengan filter atau pencarianmu.</div>`;
+        return;
+      }
+
+      grid.innerHTML = books.map(book => {
+        const ratingText = book.rating !== null && book.rating !== undefined && book.rating !== ""
+          ? `★ ${Number(book.rating).toFixed(1)}`
+          : "★ -";
+        const hintText = book.status === "Tamat" ? "Klik untuk detail & analisis →" : "Klik untuk lihat detail →";
+        return `
+          <article class="book-card" data-id="${escapeHTML(book.id)}" tabindex="0" role="button" aria-label="Buka detail buku ${escapeHTML(book.judul)}">
+            <div class="book-cover" style="background: ${escapeHTML(book.gradient || COVER_GRADIENTS[0])}">
+              ${escapeHTML(getInitials(book.judul))}${coverImgHTML(book)}
+            </div>
+            <div class="book-info">
+              <h3 class="book-title">${escapeHTML(book.judul)}</h3>
+              <p class="book-author">${escapeHTML(book.penulis)}</p>
+              <div class="book-meta-row">
+                <span class="status-badge ${getStatusClass(book.status)}">${escapeHTML(book.status)}</span>
+                <span class="book-rating-pill">${escapeHTML(ratingText)}</span>
+              </div>
+              <p class="book-note-preview">${escapeHTML(book.catatan || "Belum ada catatan singkat.")}</p>
+              <span class="book-hint">${hintText}</span>
+            </div>
+          </article>
+        `;
+      }).join("");
+
+      // FLIP: Hitung selisih & transisikan dengan halus
+      if (animateFlip && !reducedMotion) {
+        grid.querySelectorAll(".book-card[data-id]").forEach(card => {
+          const prev = prevRects.get(card.dataset.id);
+          const next = card.getBoundingClientRect();
+          if (prev) {
+            const dx = prev.left - next.left;
+            const dy = prev.top - next.top;
+            if (dx !== 0 || dy !== 0) {
+              card.style.transition = "none";
+              card.style.transform = `translate(${dx}px, ${dy}px)`;
+              requestAnimationFrame(() => {
+                card.style.transition = "transform 0.35s cubic-bezier(0.22, 1, 0.36, 1)";
+                card.style.transform = "";
+              });
+            }
+          } else {
+            card.style.opacity = "0";
+            card.style.transform = "scale(0.95)";
+            requestAnimationFrame(() => {
+              card.style.transition = "opacity 0.3s ease, transform 0.3s cubic-bezier(0.22, 1, 0.36, 1)";
+              card.style.opacity = "1";
+              card.style.transform = "";
+            });
+          }
+        });
+      }
+    }
+
+    function initShelfControls() {
+      const filterBtns = document.querySelectorAll(".filter-pill");
+      const searchInput = document.getElementById("search-input");
+      const sortSelect = document.getElementById("sort-select");
+      const grid = document.getElementById("books-grid");
+
+      filterBtns.forEach(btn => {
+        btn.addEventListener("click", () => {
+          filterBtns.forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          state.filter = btn.dataset.filter;
+          renderBooks(true);
+        });
+      });
+
+      searchInput.addEventListener("input", () => {
+        state.search = searchInput.value;
+        renderBooks(true);
+      });
+
+      sortSelect.addEventListener("change", () => {
+        state.sort = sortSelect.value;
+        renderBooks(true);
+      });
+
+      // Delegasi klik & keyboard Enter/Space pada kartu buku
+      grid.addEventListener("click", (e) => {
+        const card = e.target.closest(".book-card[data-id]");
+        if (card) openBookModal(card.dataset.id);
+      });
+
+      grid.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          const card = e.target.closest(".book-card[data-id]");
+          if (card) {
+            e.preventDefault();
+            openBookModal(card.dataset.id);
+          }
+        }
+      });
+
+      // Form tambah buku
+      const form = document.getElementById("add-book-form");
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const judul = document.getElementById("new-title").value.trim();
+        const penulis = document.getElementById("new-author").value.trim();
+        const status = document.getElementById("new-status").value;
+        const ratingRaw = document.getElementById("new-rating").value.trim();
+        const catatan = document.getElementById("new-note").value.trim();
+
+        if (!judul || !penulis) return;
+
+        let rating = null;
+        if (ratingRaw !== "") {
+          const num = parseFloat(ratingRaw);
+          if (!Number.isNaN(num)) {
+            rating = Math.min(5, Math.max(1, Math.round(num * 10) / 10));
+          }
+        }
+
+        const newBook = {
+          id: `custom-${Date.now()}`,
+          judul,
+          penulis,
+          status,
+          rating,
+          catatan: catatan || "Belum ada catatan singkat.",
+          gradient: COVER_GRADIENTS[state.books.length % COVER_GRADIENTS.length]
+        };
+
+        let existingCustom = [];
+        try {
+          existingCustom = JSON.parse(safeStorageGet(STORAGE_KEYS.customBooks, "[]")) || [];
+        } catch (err) {
+          existingCustom = [];
+        }
+        existingCustom.push(newBook);
+        safeStorageSet(STORAGE_KEYS.customBooks, JSON.stringify(existingCustom));
+
+        state.books.push(newBook);
+        form.reset();
+        renderBooks(true);
+        updateStatistics(true);
+        showToast(`"${judul}" ditambahkan ke rak buku!`);
+      });
+    }
+
+    /* ==========================================================================
+       STATISTIK OTOMATIS & COUNT-UP ANIMASI
+       ========================================================================== */
+    function animateValue(el, target, suffix = "") {
+      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (reducedMotion) {
+        el.textContent = `${target}${suffix}`;
+        return;
+      }
+
+      const start = parseInt(el.textContent, 10) || 0;
+      const duration = 650;
+      const startTime = performance.now();
+
+      function tick(now) {
+        const progress = Math.min(1, (now - startTime) / duration);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        const val = Math.round(start + (target - start) * eased);
+        el.textContent = `${val}${suffix}`;
+        if (progress < 1) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    }
+
+    function updateStatistics(animate = false) {
+      const total = state.books.length;
+      const finished = state.books.filter(b => b.status === "Tamat").length;
+      const pct = total > 0 ? Math.round((finished / total) * 100) : 0;
+
+      const elTotal = document.getElementById("stat-total");
+      const elFinished = document.getElementById("stat-finished");
+      const elPercent = document.getElementById("stat-percent");
+
+      if (animate) {
+        animateValue(elTotal, total);
+        animateValue(elFinished, finished);
+        animateValue(elPercent, pct, "%");
+      } else {
+        elTotal.textContent = total;
+        elFinished.textContent = finished;
+        elPercent.textContent = `${pct}%`;
+      }
+
+      const target = PROFILE_DATA.targetTahunan || 12;
+      const goalPct = Math.min(100, Math.round((finished / target) * 100));
+      document.getElementById("goal-meta-text").textContent = `${finished} / ${target} buku (${goalPct}%)`;
+
+      const bar = document.getElementById("goal-progress-bar");
+      bar.setAttribute("aria-valuemax", String(target));
+      bar.setAttribute("aria-valuenow", String(finished));
+      document.getElementById("goal-progress-fill").style.width = `${goalPct}%`;
+    }
+
+    /* ==========================================================================
+       MODAL DETAIL BUKU & ANALISIS
+       ========================================================================== */
+    function renderModalStars(rating) {
+      const container = document.getElementById("modal-stars");
+      if (rating === null || rating === undefined) {
+        container.innerHTML = `<span class="book-author">Belum ada rating</span>`;
+        return;
+      }
+
+      const rounded = Math.round(rating);
+      container.innerHTML = Array.from({ length: 5 }, (_, idx) => `
+        <svg class="star-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M12 2l2.92 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l7.08-1.01L12 2z"/>
+        </svg>
+      `).join("") + `<span style="margin-left:0.45rem;font-weight:700;color:var(--accent-amber);">${Number(rating).toFixed(1)} / 5</span>`;
+
+      const stars = container.querySelectorAll(".star-icon");
+      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      stars.forEach((star, idx) => {
+        if (idx < rounded) {
+          if (reducedMotion) {
+            star.classList.add("lit");
+          } else {
+            setTimeout(() => star.classList.add("lit"), 90 * (idx + 1));
+          }
+        }
+      });
+    }
+
+    function openBookModal(bookId) {
+      const book = state.books.find(b => b.id === bookId);
+      if (!book) return;
+
+      state.activeBookId = bookId;
+      state.activeTab = "detail";
+
+      const backdrop = document.getElementById("book-modal-backdrop");
+      const cover = document.getElementById("modal-cover");
+      cover.style.background = book.gradient || COVER_GRADIENTS[0];
+      cover.textContent = getInitials(book.judul);
+      cover.insertAdjacentHTML("beforeend", coverImgHTML(book));
+
+      document.getElementById("modal-book-title").textContent = book.judul;
+      document.getElementById("modal-book-author").textContent = book.penulis;
+      renderModalStars(book.rating);
+
+      const detailPanel = document.getElementById("tab-panel-detail");
+      const analisisPanel = document.getElementById("tab-panel-analisis");
+      const analisisTabBtn = document.getElementById("tab-analisis-btn");
+      const isFinished = book.status === "Tamat";
+
+      detailPanel.innerHTML = `
+        <div class="analysis-block">
+          <h4>Status Baca</h4>
+          <span class="status-badge ${getStatusClass(book.status)}">${escapeHTML(book.status)}</span>
+        </div>
+        <div class="analysis-block">
+          <h4>Catatan Singkat</h4>
+          <p>${escapeHTML(book.catatan || "Belum ada catatan singkat.")}</p>
+        </div>
+        ${!isFinished ? `<div class="locked-notice">Selesaikan dulu bukunya untuk membuka tab analisis mendalam.</div>` : ""}
+      `;
+
+      // Buku belum tamat tidak punya tab analisis
+      if (!isFinished) {
+        analisisTabBtn.hidden = true;
+        analisisPanel.innerHTML = "";
+      } else {
+        analisisTabBtn.hidden = false;
+        const analysis = BOOK_ANALYSES.find(a => a.bookId === book.id);
+        if (analysis) {
+          analisisPanel.innerHTML = `
+            ${analysis.isDraft ? `<span class="analysis-draft-badge">Draft, edit sesuai pendapatmu</span>` : ""}
+            <div class="analysis-block">
+              <h4>Ringkasan Singkat</h4>
+              <p>${escapeHTML(analysis.ringkasan)}</p>
+            </div>
+            <div class="analysis-block">
+              <h4>Ide Utama</h4>
+              <p>${escapeHTML(analysis.ideUtama)}</p>
+            </div>
+            <div class="analysis-block">
+              <h4>3 Pelajaran Terpenting</h4>
+              <ol>
+                ${analysis.pelajaran.map(p => `<li>${escapeHTML(p)}</li>`).join("")}
+              </ol>
+            </div>
+            <div class="analysis-block">
+              <h4>Kelebihan &amp; Kekurangan</h4>
+              <div class="pros-cons-grid">
+                <div class="pros-box">
+                  <strong style="color:var(--accent-emerald);display:block;margin-bottom:0.25rem;">Kelebihan</strong>
+                  <p>${escapeHTML(analysis.kelebihan)}</p>
+                </div>
+                <div class="cons-box">
+                  <strong style="color:var(--accent-amber);display:block;margin-bottom:0.25rem;">Kekurangan</strong>
+                  <p>${escapeHTML(analysis.kekurangan)}</p>
+                </div>
+              </div>
+            </div>
+            <div class="analysis-block">
+              <h4>Cocok Dibaca Oleh Siapa</h4>
+              <p>${escapeHTML(analysis.cocokUntuk)}</p>
+            </div>
+            <div class="analysis-block">
+              <h4>Skor Per Aspek</h4>
+              <div class="aspect-bars">
+                <div class="aspect-row">
+                  <div class="aspect-label-row"><span>Isi &amp; Kedalaman</span><span>${analysis.skor.isi}/100</span></div>
+                  <div class="aspect-track"><div class="aspect-fill" data-score="${analysis.skor.isi}"></div></div>
+                </div>
+                <div class="aspect-row">
+                  <div class="aspect-label-row"><span>Bahasa &amp; Gaya</span><span>${analysis.skor.bahasa}/100</span></div>
+                  <div class="aspect-track"><div class="aspect-fill" data-score="${analysis.skor.bahasa}"></div></div>
+                </div>
+                <div class="aspect-row">
+                  <div class="aspect-label-row"><span>Manfaat &amp; Dampak</span><span>${analysis.skor.manfaat}/100</span></div>
+                  <div class="aspect-track"><div class="aspect-fill" data-score="${analysis.skor.manfaat}"></div></div>
+                </div>
+              </div>
+            </div>
+            <div class="analysis-block">
+              <h4>Pendapat Pribadiku</h4>
+              <p>${escapeHTML(analysis.pendapatPribadi)}</p>
+            </div>
+          `;
+        } else {
+          analisisPanel.innerHTML = `
+            <span class="analysis-draft-badge">Draft, edit sesuai pendapatmu</span>
+            <div class="analysis-block">
+              <h4>Analisis Belum Ditulis</h4>
+              <p>Tambahkan entri analisis untuk buku ini di array <code>BOOK_ANALYSES</code> pada bagian atas script.</p>
+            </div>
+          `;
+        }
+      }
+
+      switchModalTab("detail");
+      backdrop.classList.add("is-open");
+      backdrop.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";
+    }
+
+    function switchModalTab(tabName) {
+      state.activeTab = tabName;
+      document.querySelectorAll(".tab-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.tab === tabName);
+      });
+      const detailPanel = document.getElementById("tab-panel-detail");
+      const analisisPanel = document.getElementById("tab-panel-analisis");
+      detailPanel.hidden = tabName !== "detail";
+      analisisPanel.hidden = tabName !== "analisis";
+
+      if (tabName === "analisis") {
+        requestAnimationFrame(() => {
+          analisisPanel.querySelectorAll(".aspect-fill[data-score]").forEach(bar => {
+            bar.style.width = `${bar.dataset.score}%`;
+          });
+        });
+      }
+    }
+
+    function closeBookModal() {
+      const backdrop = document.getElementById("book-modal-backdrop");
+      backdrop.classList.remove("is-open");
+      backdrop.setAttribute("aria-hidden", "true");
+      document.body.style.overflow = "";
+    }
+
+    function initModal() {
+      const backdrop = document.getElementById("book-modal-backdrop");
+      document.getElementById("modal-close-btn").addEventListener("click", closeBookModal);
+      backdrop.addEventListener("click", (e) => {
+        if (e.target === backdrop) closeBookModal();
+      });
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && backdrop.classList.contains("is-open")) {
+          closeBookModal();
+        }
+      });
+      document.getElementById("modal-tabs").addEventListener("click", (e) => {
+        const btn = e.target.closest(".tab-btn[data-tab]");
+        if (btn && !btn.hidden) switchModalTab(btn.dataset.tab);
+      });
+    }
+
+    /* ==========================================================================
+       KONTAK COPY USERNAME
+       ========================================================================== */
+    function initContactActions() {
+      document.getElementById("copy-social-btn").addEventListener("click", () => {
+        const text = `@${PROFILE_DATA.tiktokUsername}`;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text)
+            .then(() => showToast(`Username ${text} disalin!`))
+            .catch(() => fallbackCopy(text));
+        } else {
+          fallbackCopy(text);
+        }
+      });
+    }
+
+    function fallbackCopy(text) {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      try {
+        document.execCommand("copy");
+        showToast(`Username ${text} disalin!`);
+      } catch (e) {
+        showToast(`Username TikTok: ${text}`);
+      }
+      ta.remove();
+    }
+
+    /* ==========================================================================
+       BOOTSTRAP APLIKASI
+       ========================================================================== */
+    document.addEventListener("DOMContentLoaded", () => {
+      initProfile();
+      initTheme();
+      loadBooks();
+      renderBooks(false);
+      updateStatistics(false);
+      initNavigation();
+      initRevealObserver();
+      initRipple();
+      initShelfControls();
+      initModal();
+      initContactActions();
+      startTypingEffect();
+    });
+  </script>
+</body>
+</html>
