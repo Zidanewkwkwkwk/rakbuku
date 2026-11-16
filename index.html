@@ -813,6 +813,212 @@
       border: 1px solid rgba(245, 158, 11, 0.35);
     }
 
+    .status-wishlist {
+      background: rgba(139, 92, 246, 0.16);
+      color: #c4b5fd;
+      border: 1px solid rgba(139, 92, 246, 0.38);
+    }
+
+    [data-theme="light"] .status-wishlist {
+      color: var(--accent-primary);
+    }
+
+    .book-date-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-subtle);
+      padding: 0.18rem 0.55rem;
+      border-radius: var(--radius-pill);
+    }
+
+    /* Top 3 Favorit */
+    .top3-wrapper {
+      margin-bottom: 2.5rem;
+      padding: 1.5rem;
+      background: linear-gradient(145deg, var(--bg-card), var(--bg-secondary));
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-card);
+    }
+
+    .top3-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1.15rem;
+    }
+
+    .top3-title {
+      font-size: 1.2rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .top3-subtitle {
+      font-size: 0.84rem;
+      color: var(--text-secondary);
+    }
+
+    .top3-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1rem;
+    }
+
+    .top3-card {
+      position: relative;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 1.1rem;
+      display: flex;
+      gap: 0.9rem;
+      cursor: pointer;
+      transition: transform var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
+    }
+
+    .top3-card:hover,
+    .top3-card:focus-visible {
+      transform: translateY(-4px);
+      border-color: var(--border-accent);
+      box-shadow: var(--shadow-glow);
+      outline: none;
+    }
+
+    .top3-card.is-empty-slot {
+      cursor: default;
+      border-style: dashed;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      min-height: 120px;
+    }
+
+    .top3-card.is-empty-slot:hover {
+      transform: none;
+      border-color: var(--border-subtle);
+      box-shadow: none;
+    }
+
+    .rank-badge {
+      position: absolute;
+      top: -10px;
+      right: 12px;
+      padding: 0.2rem 0.65rem;
+      border-radius: var(--radius-pill);
+      font-size: 0.74rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+    }
+
+    .rank-1 {
+      background: linear-gradient(135deg, #f59e0b, #fbbf24);
+      color: #1e1b18;
+    }
+
+    .rank-2 {
+      background: linear-gradient(135deg, #94a3b8, #cbd5e1);
+      color: #0f172a;
+    }
+
+    .rank-3 {
+      background: linear-gradient(135deg, #b45309, #d97706);
+      color: #ffffff;
+    }
+
+    /* Kutipan Favorit di Modal */
+    .quote-box {
+      position: relative;
+      background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(34, 211, 238, 0.06));
+      border: 1px solid var(--border-accent);
+      border-left: 4px solid var(--accent-primary);
+      border-radius: var(--radius-sm);
+      padding: 1rem 1.15rem 1rem 1.25rem;
+      font-style: italic;
+      color: var(--text-primary);
+      line-height: 1.7;
+    }
+
+    .quote-box::before {
+      content: "“";
+      font-size: 2.2rem;
+      line-height: 1;
+      color: var(--accent-primary);
+      opacity: 0.45;
+      font-style: normal;
+      display: block;
+      margin-bottom: -0.45rem;
+    }
+
+    /* Wishlist Section */
+    .wishlist-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+      gap: 1.1rem;
+    }
+
+    .wishlist-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 1.15rem;
+      display: flex;
+      gap: 0.95rem;
+      box-shadow: var(--shadow-card);
+      transition: transform var(--transition-fast), border-color var(--transition-fast);
+    }
+
+    .wishlist-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--border-accent);
+    }
+
+    .wishlist-actions {
+      margin-top: auto;
+      padding-top: 0.55rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-mini {
+      padding: 0.34rem 0.78rem;
+      border-radius: var(--radius-pill);
+      font-size: 0.76rem;
+      font-weight: 600;
+      background: rgba(139, 92, 246, 0.14);
+      color: var(--accent-secondary);
+      border: 1px solid rgba(139, 92, 246, 0.32);
+      transition: background-color var(--transition-fast), transform var(--transition-fast);
+    }
+
+    .btn-mini:hover {
+      background: var(--accent-primary);
+      color: #ffffff;
+      transform: translateY(-1px);
+    }
+
+    .goal-consistency {
+      margin-top: 0.85rem;
+      font-size: 0.86rem;
+      color: var(--text-secondary);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
     @keyframes status-pulse {
       0%, 100% { box-shadow: 0 0 0 0 rgba(34, 211, 238, 0.35); }
       50% { box-shadow: 0 0 0 6px rgba(34, 211, 238, 0); }
@@ -1197,6 +1403,157 @@
         transform: none;
       }
     }
+    /* ==========================================================================
+       TAMBAHAN: Grafik bulanan, wishlist klik, mode edit, ekspor
+       ========================================================================== */
+    .chart-card {
+      margin-top: 1.5rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 1.4rem 1.5rem;
+      box-shadow: var(--shadow-card);
+    }
+    .chart-year-nav {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+    .chart-nav-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      font-size: 1.1rem;
+      line-height: 1;
+      cursor: pointer;
+      transition: border-color var(--transition-fast), transform var(--transition-fast);
+    }
+    .chart-nav-btn:hover { border-color: var(--border-accent); transform: scale(1.08); }
+    .chart-bars {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 0.35rem;
+      align-items: end;
+      height: 170px;
+      margin-top: 0.5rem;
+    }
+    .chart-col {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: center;
+      height: 100%;
+      min-width: 0;
+    }
+    .chart-val {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--accent-amber);
+      margin-bottom: 0.2rem;
+      min-height: 1em;
+    }
+    .chart-bar {
+      width: 100%;
+      max-width: 34px;
+      height: 0;
+      min-height: 3px;
+      border-radius: 6px 6px 2px 2px;
+      background: linear-gradient(180deg, var(--accent-secondary), var(--accent-primary));
+      transition: height 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .chart-bar.is-zero { background: var(--border-subtle); }
+    .chart-labels {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 0.35rem;
+      margin-top: 0.4rem;
+    }
+    .chart-labels span {
+      text-align: center;
+      font-size: 0.62rem;
+      color: var(--text-muted);
+      overflow: hidden;
+    }
+    .chart-note {
+      margin-top: 0.8rem;
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+    }
+
+    .wishlist-card { cursor: pointer; }
+    .wishlist-card:focus-visible { outline: 2px solid var(--accent-primary); outline-offset: 2px; }
+
+    .modal-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-top: 1.15rem;
+    }
+
+    .edit-panel {
+      margin-top: 1.4rem;
+      border: 1px dashed var(--border-accent);
+      border-radius: var(--radius-md);
+      padding: 0.9rem 1rem;
+      background: var(--bg-secondary);
+    }
+    .edit-panel summary {
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--accent-primary);
+    }
+    .edit-panel form { margin-top: 0.9rem; }
+    .edit-panel textarea.input-field { min-height: 76px; resize: vertical; font-family: inherit; }
+    .edit-actions { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+    .btn-danger {
+      background: rgba(239, 68, 68, 0.12);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.4);
+    }
+    [data-theme="light"] .btn-danger { color: #dc2626; }
+
+    .edit-bar {
+      position: fixed;
+      left: 0.75rem;
+      bottom: 0.75rem;
+      z-index: 90;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.4rem 0.5rem;
+      max-width: calc(100% - 5rem);
+      padding: 0.5rem 0.7rem;
+      background: var(--bg-glass);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid var(--border-accent);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-glow);
+      font-size: 0.8rem;
+    }
+    .edit-bar strong { color: var(--accent-primary); }
+    .edit-bar .btn-mini { white-space: nowrap; }
+
+    .export-box textarea {
+      width: 100%;
+      min-height: 260px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.74rem;
+      line-height: 1.45;
+      resize: vertical;
+    }
+    .export-help {
+      font-size: 0.86rem;
+      color: var(--text-secondary);
+      margin: 0.4rem 0 0.8rem;
+    }
+    .export-help ol { padding-left: 1.2rem; display: flex; flex-direction: column; gap: 0.25rem; }
   </style>
 </head>
 <body>
@@ -1218,6 +1575,7 @@
           <li><a href="#beranda" class="nav-link active" data-section="beranda">Beranda</a></li>
           <li><a href="#tentang" class="nav-link" data-section="tentang">Tentang</a></li>
           <li><a href="#rak-buku" class="nav-link" data-section="rak-buku">Rak Buku</a></li>
+          <li><a href="#wishlist" class="nav-link" data-section="wishlist">Wishlist</a></li>
           <li><a href="#statistik" class="nav-link" data-section="statistik">Statistik</a></li>
           <li><a href="#kontak" class="nav-link" data-section="kontak">Kontak</a></li>
         </ul>
@@ -1286,7 +1644,16 @@
         <div class="section-header reveal">
           <span class="section-eyebrow">Koleksi &amp; Catatan</span>
           <h2 class="section-title">Rak Buku</h2>
-          <p class="section-desc">Klik kartu buku untuk melihat detail catatan, atau bedah analisis khusus buku yang sudah tamat.</p>
+          <p class="section-desc">Klik kartu buku untuk melihat detail catatan, kutipan favorit, tanggal selesai, atau bedah analisis buku yang sudah tamat.</p>
+        </div>
+
+        <!-- TOP 3 FAVORIT (Otomatis dari rating tertinggi) -->
+        <div class="top3-wrapper reveal" aria-label="Top 3 Favorit">
+          <div class="top3-header">
+            <h3 class="top3-title">🏆 Top 3 Favorit</h3>
+            <span class="top3-subtitle">Otomatis diambil dari buku dengan rating tertinggi di rak</span>
+          </div>
+          <div id="top3-grid" class="top3-grid"></div>
         </div>
 
         <div class="shelf-controls reveal">
@@ -1334,12 +1701,62 @@
               <label for="new-rating" class="form-label">Rating (1 – 5, opsional)</label>
               <input id="new-rating" class="input-field" type="number" min="1" max="5" step="0.1" placeholder="Contoh: 4.5" />
             </div>
+            <div class="form-group">
+              <label for="new-finish-date" class="form-label">Tanggal Selesai (opsional)</label>
+              <input id="new-finish-date" class="input-field" type="date" />
+            </div>
+            <div class="form-group full-width">
+              <label for="new-cover" class="form-label">Link Gambar Cover (opsional)</label>
+              <input id="new-cover" class="input-field" type="text" placeholder="https://... atau cover/nama.jpg" />
+            </div>
             <div class="form-group full-width">
               <label for="new-note" class="form-label">Catatan Singkat</label>
               <input id="new-note" class="input-field" type="text" placeholder="Kesan atau ekspektasi tentang buku ini..." />
             </div>
+            <div class="form-group full-width">
+              <label for="new-quote" class="form-label">Kutipan Favorit (opsional)</label>
+              <input id="new-quote" class="input-field" type="text" placeholder="Kalimat paling nempel dari buku ini..." />
+            </div>
             <div class="form-actions full-width">
               <button type="submit" class="btn btn-primary">Simpan Buku</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- WISHLIST (MAU DIBACA) -->
+    <section id="wishlist">
+      <div class="container">
+        <div class="section-header reveal">
+          <span class="section-eyebrow">Daftar Incaran</span>
+          <h2 class="section-title">Mau Dibaca (Wishlist)</h2>
+          <p class="section-desc">Daftar buku incaran yang belum dibeli, terpisah dari rak utama.</p>
+        </div>
+
+        <div id="wishlist-grid" class="wishlist-grid reveal"></div>
+
+        <div class="add-book-box reveal">
+          <h3 class="add-book-title">+ Tambah Buku ke Wishlist</h3>
+          <form id="add-wishlist-form" class="form-grid">
+            <div class="form-group">
+              <label for="wish-title" class="form-label">Judul Buku</label>
+              <input id="wish-title" class="input-field" type="text" required placeholder="Contoh: The Brothers Karamazov" />
+            </div>
+            <div class="form-group">
+              <label for="wish-author" class="form-label">Penulis</label>
+              <input id="wish-author" class="input-field" type="text" required placeholder="Contoh: Fyodor Dostoevsky" />
+            </div>
+            <div class="form-group">
+              <label for="wish-year" class="form-label">Tahun Terbit</label>
+              <input id="wish-year" class="input-field" type="number" min="1000" max="2100" required placeholder="Contoh: 1880" />
+            </div>
+            <div class="form-group full-width">
+              <label for="wish-cover" class="form-label">Link Gambar Cover (opsional)</label>
+              <input id="wish-cover" class="input-field" type="text" placeholder="https://... atau cover/nama.jpg" />
+            </div>
+            <div class="form-actions full-width">
+              <button type="submit" class="btn btn-primary">Tambah ke Wishlist</button>
             </div>
           </form>
         </div>
@@ -1377,6 +1794,23 @@
           <div class="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="12" aria-valuenow="0" id="goal-progress-bar">
             <div class="progress-fill" id="goal-progress-fill"></div>
           </div>
+          <div class="goal-consistency" id="goal-consistency-info"></div>
+        </div>
+
+        <div class="chart-card reveal" id="chart-card">
+          <div class="goal-header">
+            <span class="goal-title">Buku Tamat per Bulan</span>
+            <span class="chart-year-nav">
+              <button type="button" class="chart-nav-btn" id="chart-prev" aria-label="Tahun sebelumnya">&lsaquo;</button>
+              <span id="chart-year-label">2026</span>
+              <button type="button" class="chart-nav-btn" id="chart-next" aria-label="Tahun berikutnya">&rsaquo;</button>
+            </span>
+          </div>
+          <div class="chart-bars" id="chart-bars" role="img" aria-label="Grafik jumlah buku tamat per bulan"></div>
+          <div class="chart-labels" aria-hidden="true">
+            <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>Mei</span><span>Jun</span><span>Jul</span><span>Agu</span><span>Sep</span><span>Okt</span><span>Nov</span><span>Des</span>
+          </div>
+          <p class="chart-note" id="chart-note"></p>
         </div>
       </div>
     </section>
@@ -1455,7 +1889,16 @@
       targetTahunan: 12
     };
 
-    // 2. Daftar Buku Awal (id unik harus cocok dengan bookId pada BOOK_ANALYSES)
+    // 2. DAFTAR BUKU DI RAK
+    // - id        : unik, huruf kecil, tanpa spasi (harus sama dengan bookId di BOOK_ANALYSES)
+    // - status    : "Sudah dibeli" | "Sedang dibaca" | "Tamat"
+    // - rating    : angka 1-5, atau null kalau belum dinilai
+    // - tanggalSelesai : "2026-07-20" (tahun-bulan-tanggal) atau null. Dipakai untuk grafik bulanan
+    // - kutipan   : satu kutipan ("...") atau beberapa (["...", "..."]), boleh kosong ""
+    // - cover     : link gambar (https://...) atau path file ("cover/nama.jpg"), kosong "" = pakai blok warna
+    // - gradient  : warna cadangan kalau cover kosong
+    // TIP: kamu juga bisa edit semua ini langsung dari website (buka link-nya dengan ?edit di belakang),
+    //      lalu tekan "Ekspor ke Kode" dan tempel hasilnya menggantikan blok INITIAL_BOOKS dan INITIAL_WISHLIST.
     const INITIAL_BOOKS = [
       {
         id: "tractatus-wittgenstein",
@@ -1463,6 +1906,8 @@
         penulis: "Ludwig Wittgenstein",
         status: "Tamat",
         rating: 4.5,
+        tanggalSelesai: "2026-07-20",
+        kutipan: "Batas Bahasaku adalah Batas Duniaku",
         catatan: "Ini buku tuh gilak sih, berani untuk menjelaskan hal yang bahkan di dalam bukunya dikatakan harus didiamkan",
         cover: "https://covers.openlibrary.org/b/id/12621893-L.jpg",
         gradient: "linear-gradient(135deg, #6d28d9, #0891b2)"
@@ -1473,6 +1918,8 @@
         penulis: "Hermann Hesse",
         status: "Tamat",
         rating: 4.1,
+        tanggalSelesai: "2026-11-15",
+        kutipan: "Aku telah dirampas oleh Buddha,\" pikir Siddhartha, \"Aku telah dirampas, dan bahkan lebih banyak lagi yang telah diberikan-Nya kepadaku. Ia telah merampas sahabatku, orang yang pernah percaya kepadaku dan sekarang percaya kepada-Nya, yang dulunya adalah bayanganku dan sekarang menjadi bayangan Gotama. Tetapi Ia telah memberiku Siddhartha, diriku sendiri.",
         catatan: "merupakan buku dengan petualangan terbaik seorang karakter sih",
         cover: "https://covers.openlibrary.org/b/id/6562532-L.jpg",
         gradient: "linear-gradient(135deg, #d97706, #be185d)"
@@ -1483,10 +1930,22 @@
         penulis: "Oscar Wilde",
         status: "Sedang dibaca",
         rating: null,
+        tanggalSelesai: null,
+        kutipan: "",
         catatan: "ekspektasiku tinggi buat buku ini",
         cover: "https://covers.openlibrary.org/b/id/14314700-L.jpg",
         gradient: "linear-gradient(135deg, #0f766e, #4338ca)"
       }
+    ];
+
+    // 2b. WISHLIST ("Mau dibaca", terpisah dari rak utama)
+    // cover boleh dikosongkan. Buku wishlist bisa dipindah ke rak lewat tombol di websitenya.
+    const INITIAL_WISHLIST = [
+      { id: "wish-alice-wonderland", judul: "Alice in Wonderland", penulis: "Lewis Carroll", tahunTerbit: 1865, status: "Mau dibaca", cover: "https://covers.openlibrary.org/b/id/8595954-L.jpg", gradient: "linear-gradient(135deg, #0284c7, #6366f1)" },
+      { id: "wish-alice-looking-glass", judul: "Alice Through the Looking-Glass", penulis: "Lewis Carroll", tahunTerbit: 1871, status: "Mau dibaca", cover: "https://covers.openlibrary.org/b/id/12736575-L.jpg", gradient: "linear-gradient(135deg, #7c3aed, #ec4899)" },
+      { id: "wish-anna-karenina", judul: "Anna Karenina", penulis: "Leo Tolstoy", tahunTerbit: 1878, status: "Mau dibaca", cover: "https://covers.openlibrary.org/b/id/9730185-L.jpg", gradient: "linear-gradient(135deg, #be123c, #f59e0b)" },
+      { id: "wish-notes-underground", judul: "Notes from Underground", penulis: "Fyodor Dostoevsky", tahunTerbit: 1864, status: "Mau dibaca", cover: "https://covers.openlibrary.org/b/id/6908257-L.jpg", gradient: "linear-gradient(135deg, #334155, #6d28d9)" },
+      { id: "wish-crime-punishment", judul: "Crime and Punishment", penulis: "Fyodor Dostoevsky", tahunTerbit: 1866, status: "Mau dibaca", cover: "https://covers.openlibrary.org/b/id/12622046-L.jpg", gradient: "linear-gradient(135deg, #991b1b, #1e293b)" }
     ];
 
     // 3. Array Analisis Khusus Buku Berstatus "Tamat"
@@ -1530,8 +1989,14 @@
        ========================================================================== */
     const STORAGE_KEYS = {
       theme: "zidan_bookshelf_theme_v1",
-      customBooks: "zidan_bookshelf_custom_books_v1"
+      customBooks: "zidan_bookshelf_custom_books_v1",
+      customWishlist: "zidan_bookshelf_custom_wishlist_v2",
+      overrides: "zidan_bookshelf_overrides_v2",
+      hidden: "zidan_bookshelf_hidden_v2"
     };
+
+    // Mode edit: buka website dengan tambahan ?edit di link (contoh: .../rakbuku/?edit)
+    const EDIT_MODE = new URLSearchParams(location.search).has("edit");
 
     const COVER_GRADIENTS = [
       "linear-gradient(135deg, #7c3aed, #2563eb)",
@@ -1543,12 +2008,15 @@
 
     let state = {
       books: [],
+      wishlist: [],
       filter: "Semua",
       search: "",
       sort: "default",
       activeBookId: null,
       activeTab: "detail",
-      statsAnimated: false
+      activeIsWish: false,
+      statsAnimated: false,
+      chartYear: new Date().getFullYear()
     };
 
     function safeStorageGet(key, fallback = null) {
@@ -1773,16 +2241,238 @@
     /* ==========================================================================
        DATA BUKU, FILTER, SORT, FLIP ANIMATION & RENDER
        ========================================================================== */
-    function loadBooks() {
-      let custom = [];
+    /* ==========================================================================
+       HELPER DATA: simpan lokal, tanggal, kutipan, penggabungan data kode + lokal
+       ========================================================================== */
+    function readJSON(key, fallback) {
       try {
-        const raw = safeStorageGet(STORAGE_KEYS.customBooks, "[]");
+        const raw = safeStorageGet(key, null);
+        if (raw === null) return fallback;
         const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed)) custom = parsed;
+        return parsed === null || parsed === undefined ? fallback : parsed;
       } catch (e) {
-        custom = [];
+        return fallback;
       }
-      state.books = [...INITIAL_BOOKS, ...custom];
+    }
+
+    function writeJSON(key, value) {
+      safeStorageSet(key, JSON.stringify(value));
+    }
+
+    const BULAN_ID = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+
+    // Terima "2026-07-20", "2026-07", atau teks lama "20 Juli 2026". Kembalikan {y, m, d} atau null.
+    function parseTanggal(value) {
+      const str = String(value || "").trim();
+      if (!str) return null;
+      let m = /^(\d{4})-(\d{1,2})(?:-(\d{1,2}))?$/.exec(str);
+      if (m) {
+        const mon = parseInt(m[2], 10);
+        if (mon < 1 || mon > 12) return null;
+        return { y: parseInt(m[1], 10), m: mon, d: m[3] ? parseInt(m[3], 10) : null };
+      }
+      m = /^(?:(\d{1,2})\s+)?([A-Za-z]+)\s+(\d{4})$/.exec(str);
+      if (m) {
+        const idx = BULAN_ID.findIndex(n => n.toLowerCase() === m[2].toLowerCase());
+        if (idx === -1) return null;
+        return { y: parseInt(m[3], 10), m: idx + 1, d: m[1] ? parseInt(m[1], 10) : null };
+      }
+      return null;
+    }
+
+    function formatTanggal(value) {
+      const t = parseTanggal(value);
+      if (!t) return value ? String(value) : "";
+      return `${t.d ? t.d + " " : ""}${BULAN_ID[t.m - 1]} ${t.y}`;
+    }
+
+    function toInputDate(value) {
+      const t = parseTanggal(value);
+      if (!t || !t.d) return "";
+      return `${t.y}-${String(t.m).padStart(2, "0")}-${String(t.d).padStart(2, "0")}`;
+    }
+
+    function dateSortKey(value) {
+      const t = parseTanggal(value);
+      return t ? t.y * 10000 + t.m * 100 + (t.d || 0) : 0;
+    }
+
+    function toQuotes(kutipan) {
+      const list = Array.isArray(kutipan) ? kutipan : [kutipan];
+      return list.map(q => String(q || "").trim()).filter(Boolean);
+    }
+
+    function quotesFromTextarea(text) {
+      const list = String(text || "").split("\n").map(q => q.trim()).filter(Boolean);
+      if (list.length === 0) return "";
+      return list.length === 1 ? list[0] : list;
+    }
+
+    function isCodeId(id) {
+      return INITIAL_BOOKS.some(b => b.id === id) || INITIAL_WISHLIST.some(w => w.id === id);
+    }
+
+    // Gabungan: data di kode + tambahan lokal (form) - yang disembunyikan + hasil edit lokal
+    function mergeItems(codeList, customKey) {
+      const custom = readJSON(customKey, []);
+      const overrides = readJSON(STORAGE_KEYS.overrides, {});
+      const hidden = readJSON(STORAGE_KEYS.hidden, []);
+      const codeIds = new Set(codeList.map(x => x.id));
+      const extra = (Array.isArray(custom) ? custom : []).filter(x => x && !codeIds.has(x.id));
+      return [...codeList, ...extra]
+        .filter(x => !hidden.includes(x.id))
+        .map(x => ({ ...x, ...(overrides[x.id] || {}) }));
+    }
+
+    function addCustomItem(customKey, item) {
+      const custom = readJSON(customKey, []);
+      custom.push(item);
+      writeJSON(customKey, custom);
+    }
+
+    function persistEdit(id, fields, customKey) {
+      const custom = readJSON(customKey, []);
+      const ci = custom.findIndex(x => x.id === id);
+      if (ci > -1 && !isCodeId(id)) {
+        custom[ci] = { ...custom[ci], ...fields };
+        writeJSON(customKey, custom);
+      } else {
+        const overrides = readJSON(STORAGE_KEYS.overrides, {});
+        overrides[id] = { ...(overrides[id] || {}), ...fields };
+        writeJSON(STORAGE_KEYS.overrides, overrides);
+      }
+    }
+
+    function removeItem(id, customKey) {
+      const custom = readJSON(customKey, []);
+      const ci = custom.findIndex(x => x.id === id);
+      if (ci > -1 && !isCodeId(id)) {
+        custom.splice(ci, 1);
+        writeJSON(customKey, custom);
+      } else {
+        const hidden = readJSON(STORAGE_KEYS.hidden, []);
+        if (!hidden.includes(id)) hidden.push(id);
+        writeJSON(STORAGE_KEYS.hidden, hidden);
+      }
+    }
+
+    function findItem(id) {
+      const book = state.books.find(b => b.id === id);
+      if (book) return { item: book, isWish: false };
+      const wish = state.wishlist.find(w => w.id === id);
+      if (wish) return { item: wish, isWish: true };
+      return null;
+    }
+
+    function copyText(text, okMessage) {
+      const fallback = () => {
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        ta.style.position = "fixed";
+        ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.select();
+        try {
+          document.execCommand("copy");
+          showToast(okMessage);
+        } catch (e) {
+          showToast("Salin manual ya, browser menolak.");
+        }
+        ta.remove();
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => showToast(okMessage)).catch(fallback);
+      } else {
+        fallback();
+      }
+    }
+
+    function refreshAll() {
+      renderTop3();
+      renderBooks(false);
+      renderWishlist();
+      updateStatistics(false);
+    }
+
+    function loadBooks() {
+      state.books = mergeItems(INITIAL_BOOKS, STORAGE_KEYS.customBooks);
+    }
+
+    function loadWishlist() {
+      state.wishlist = mergeItems(INITIAL_WISHLIST, STORAGE_KEYS.customWishlist);
+    }
+
+
+
+
+
+    function renderTop3() {
+      const container = document.getElementById("top3-grid");
+      if (!container) return;
+
+      const rated = state.books
+        .filter(b => b.rating !== null && b.rating !== undefined && b.rating !== "")
+        .sort((a, b) => Number(b.rating) - Number(a.rating))
+        .slice(0, 3);
+
+      const slots = [0, 1, 2];
+      container.innerHTML = slots.map(idx => {
+        const book = rated[idx];
+        const rank = idx + 1;
+        if (!book) {
+          return `
+            <div class="top3-card is-empty-slot">
+              <span class="rank-badge rank-${rank}">#${rank}</span>
+              <div>Slot #${rank} menunggu buku baru yang diberi rating.</div>
+            </div>
+          `;
+        }
+        return `
+          <article class="top3-card" data-id="${escapeHTML(book.id)}" tabindex="0" role="button" aria-label="Buka Top ${rank}: ${escapeHTML(book.judul)}">
+            <span class="rank-badge rank-${rank}">#${rank}</span>
+            <div class="book-cover" style="background: ${escapeHTML(book.gradient || COVER_GRADIENTS[0])}">
+              ${escapeHTML(getInitials(book.judul))}${coverImgHTML(book)}
+            </div>
+            <div class="book-info">
+              <h4 class="book-title">${escapeHTML(book.judul)}</h4>
+              <p class="book-author">${escapeHTML(book.penulis)}</p>
+              <div class="book-meta-row">
+                <span class="book-rating-pill">★ ${Number(book.rating).toFixed(1)} / 5</span>
+                ${book.tanggalSelesai ? `<span class="book-date-pill">📅 ${escapeHTML(formatTanggal(book.tanggalSelesai))}</span>` : ""}
+              </div>
+              <span class="book-hint">Lihat detail &amp; kutipan →</span>
+            </div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function renderWishlist() {
+      const grid = document.getElementById("wishlist-grid");
+      if (!grid) return;
+
+      if (state.wishlist.length === 0) {
+        grid.innerHTML = `<div class="empty-state">Wishlist masih kosong. Tambahkan buku incaranmu di bawah!</div>`;
+        return;
+      }
+
+      grid.innerHTML = state.wishlist.map(item => `
+        <article class="wishlist-card" data-id="${escapeHTML(item.id)}" tabindex="0" role="button" aria-label="Buka detail ${escapeHTML(item.judul)}">
+          <div class="book-cover" style="background: ${escapeHTML(item.gradient || COVER_GRADIENTS[0])}">
+            ${escapeHTML(getInitials(item.judul))}${coverImgHTML(item)}
+          </div>
+          <div class="book-info">
+            <h3 class="book-title">${escapeHTML(item.judul)}</h3>
+            <p class="book-author">${escapeHTML(item.penulis)}${item.tahunTerbit ? ` (${escapeHTML(item.tahunTerbit)})` : ""}</p>
+            <div class="book-meta-row">
+              <span class="status-badge status-wishlist">${escapeHTML(item.status || "Mau dibaca")}</span>
+            </div>
+            <div class="wishlist-actions">
+              <button type="button" class="btn-mini" data-action="move" data-id="${escapeHTML(item.id)}">+ Pindah ke Rak</button>
+            </div>
+          </div>
+        </article>
+      `).join("");
     }
 
     function getFilteredSortedBooks() {
@@ -1849,6 +2539,7 @@
               <div class="book-meta-row">
                 <span class="status-badge ${getStatusClass(book.status)}">${escapeHTML(book.status)}</span>
                 <span class="book-rating-pill">${escapeHTML(ratingText)}</span>
+                ${book.tanggalSelesai ? `<span class="book-date-pill">📅 ${escapeHTML(formatTanggal(book.tanggalSelesai))}</span>` : ""}
               </div>
               <p class="book-note-preview">${escapeHTML(book.catatan || "Belum ada catatan singkat.")}</p>
               <span class="book-hint">${hintText}</span>
@@ -1886,6 +2577,30 @@
       }
     }
 
+    function moveWishlistToShelf(wishId) {
+      const picked = state.wishlist.find(w => w.id === wishId);
+      if (!picked) return;
+
+      removeItem(wishId, STORAGE_KEYS.customWishlist);
+      addCustomItem(STORAGE_KEYS.customBooks, {
+        id: `custom-${Date.now()}`,
+        judul: picked.judul,
+        penulis: picked.penulis,
+        status: "Sudah dibeli",
+        rating: null,
+        tanggalSelesai: null,
+        kutipan: "",
+        catatan: `Berhasil dibeli dari wishlist${picked.tahunTerbit ? ` (terbit ${picked.tahunTerbit})` : ""}.`,
+        cover: picked.cover || "",
+        gradient: picked.gradient || COVER_GRADIENTS[state.books.length % COVER_GRADIENTS.length]
+      });
+
+      loadBooks();
+      loadWishlist();
+      refreshAll();
+      showToast(`"${picked.judul}" dipindahkan ke Rak Buku!`);
+    }
+
     function initShelfControls() {
       const filterBtns = document.querySelectorAll(".filter-pill");
       const searchInput = document.getElementById("search-input");
@@ -1911,23 +2626,32 @@
         renderBooks(true);
       });
 
-      // Delegasi klik & keyboard Enter/Space pada kartu buku
-      grid.addEventListener("click", (e) => {
-        const card = e.target.closest(".book-card[data-id]");
-        if (card) openBookModal(card.dataset.id);
-      });
-
-      grid.addEventListener("keydown", (e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          const card = e.target.closest(".book-card[data-id]");
+      // Klik & keyboard (Enter/Space) pada kartu: rak, Top 3, dan wishlist
+      const wishlistGrid = document.getElementById("wishlist-grid");
+      const top3Grid = document.getElementById("top3-grid");
+      [grid, top3Grid, wishlistGrid].forEach(container => {
+        if (!container) return;
+        container.addEventListener("click", (e) => {
+          const moveBtn = e.target.closest('[data-action="move"]');
+          if (moveBtn) {
+            moveWishlistToShelf(moveBtn.dataset.id);
+            return;
+          }
+          const card = e.target.closest("[data-id]");
+          if (card) openBookModal(card.dataset.id);
+        });
+        container.addEventListener("keydown", (e) => {
+          if (e.key !== "Enter" && e.key !== " ") return;
+          if (e.target.closest("button")) return;
+          const card = e.target.closest("[data-id]");
           if (card) {
             e.preventDefault();
             openBookModal(card.dataset.id);
           }
-        }
+        });
       });
 
-      // Form tambah buku
+      // Form tambah buku ke rak
       const form = document.getElementById("add-book-form");
       form.addEventListener("submit", (e) => {
         e.preventDefault();
@@ -1935,42 +2659,63 @@
         const penulis = document.getElementById("new-author").value.trim();
         const status = document.getElementById("new-status").value;
         const ratingRaw = document.getElementById("new-rating").value.trim();
+        const finishDateRaw = document.getElementById("new-finish-date").value;
+        const cover = document.getElementById("new-cover").value.trim();
         const catatan = document.getElementById("new-note").value.trim();
+        const kutipan = document.getElementById("new-quote").value.trim();
 
         if (!judul || !penulis) return;
 
         let rating = null;
         if (ratingRaw !== "") {
           const num = parseFloat(ratingRaw);
-          if (!Number.isNaN(num)) {
-            rating = Math.min(5, Math.max(1, Math.round(num * 10) / 10));
-          }
+          if (!Number.isNaN(num)) rating = Math.min(5, Math.max(1, Math.round(num * 10) / 10));
         }
 
-        const newBook = {
+        addCustomItem(STORAGE_KEYS.customBooks, {
           id: `custom-${Date.now()}`,
           judul,
           penulis,
           status,
           rating,
+          tanggalSelesai: finishDateRaw || null,
+          kutipan,
           catatan: catatan || "Belum ada catatan singkat.",
+          cover,
           gradient: COVER_GRADIENTS[state.books.length % COVER_GRADIENTS.length]
-        };
+        });
 
-        let existingCustom = [];
-        try {
-          existingCustom = JSON.parse(safeStorageGet(STORAGE_KEYS.customBooks, "[]")) || [];
-        } catch (err) {
-          existingCustom = [];
-        }
-        existingCustom.push(newBook);
-        safeStorageSet(STORAGE_KEYS.customBooks, JSON.stringify(existingCustom));
-
-        state.books.push(newBook);
+        loadBooks();
         form.reset();
-        renderBooks(true);
+        refreshAll();
         updateStatistics(true);
         showToast(`"${judul}" ditambahkan ke rak buku!`);
+      });
+
+      // Form tambah wishlist
+      const wishForm = document.getElementById("add-wishlist-form");
+      wishForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const judul = document.getElementById("wish-title").value.trim();
+        const penulis = document.getElementById("wish-author").value.trim();
+        const tahunTerbit = document.getElementById("wish-year").value.trim();
+        const cover = document.getElementById("wish-cover").value.trim();
+        if (!judul || !penulis || !tahunTerbit) return;
+
+        addCustomItem(STORAGE_KEYS.customWishlist, {
+          id: `wish-${Date.now()}`,
+          judul,
+          penulis,
+          tahunTerbit: parseInt(tahunTerbit, 10) || tahunTerbit,
+          status: "Mau dibaca",
+          cover,
+          gradient: COVER_GRADIENTS[state.wishlist.length % COVER_GRADIENTS.length]
+        });
+
+        loadWishlist();
+        wishForm.reset();
+        renderWishlist();
+        showToast(`"${judul}" ditambahkan ke Wishlist!`);
       });
     }
 
@@ -1996,6 +2741,55 @@
         if (progress < 1) requestAnimationFrame(tick);
       }
       requestAnimationFrame(tick);
+    }
+
+    function renderChart() {
+      const bars = document.getElementById("chart-bars");
+      if (!bars) return;
+      const year = state.chartYear;
+      document.getElementById("chart-year-label").textContent = year;
+
+      const counts = new Array(12).fill(0);
+      let undated = 0;
+      state.books.forEach(b => {
+        if (b.status !== "Tamat") return;
+        const t = parseTanggal(b.tanggalSelesai);
+        if (!t) { undated++; return; }
+        if (t.y === year) counts[t.m - 1]++;
+      });
+      const max = Math.max(1, ...counts);
+
+      bars.innerHTML = counts.map((c, i) => `
+        <div class="chart-col" title="${BULAN_ID[i]} ${year}: ${c} buku">
+          <span class="chart-val">${c > 0 ? c : ""}</span>
+          <div class="chart-bar${c === 0 ? " is-zero" : ""}" data-h="${c === 0 ? 0 : Math.round((c / max) * 100)}"></div>
+        </div>
+      `).join("");
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          bars.querySelectorAll(".chart-bar").forEach(bar => {
+            const h = Number(bar.dataset.h);
+            bar.style.height = h > 0 ? `${h}%` : "";
+          });
+        });
+      });
+
+      const totalYear = counts.reduce((a, b) => a + b, 0);
+      const parts = [totalYear > 0 ? `${totalYear} buku tamat di ${year}.` : `Belum ada buku tamat tercatat di ${year}.`];
+      if (undated > 0) parts.push(`${undated} buku tamat belum punya tanggal selesai, jadi belum masuk grafik.`);
+      document.getElementById("chart-note").textContent = parts.join(" ");
+    }
+
+    function initChart() {
+      document.getElementById("chart-prev").addEventListener("click", () => {
+        state.chartYear -= 1;
+        renderChart();
+      });
+      document.getElementById("chart-next").addEventListener("click", () => {
+        state.chartYear += 1;
+        renderChart();
+      });
     }
 
     function updateStatistics(animate = false) {
@@ -2025,6 +2819,20 @@
       bar.setAttribute("aria-valuemax", String(target));
       bar.setAttribute("aria-valuenow", String(finished));
       document.getElementById("goal-progress-fill").style.width = `${goalPct}%`;
+
+      const consistencyEl = document.getElementById("goal-consistency-info");
+      if (consistencyEl) {
+        const dated = state.books
+          .filter(b => b.status === "Tamat" && parseTanggal(b.tanggalSelesai))
+          .sort((a, b) => dateSortKey(a.tanggalSelesai) - dateSortKey(b.tanggalSelesai));
+        const latest = dated.length > 0 ? formatTanggal(dated[dated.length - 1].tanggalSelesai) : "-";
+        consistencyEl.innerHTML = `
+          <span>Jejak konsistensi: <strong>${dated.length}</strong> buku tercatat tanggal tamatnya</span>
+          <span>Terakhir tamat: <strong>${escapeHTML(latest)}</strong></span>
+        `;
+      }
+
+      renderChart();
     }
 
     /* ==========================================================================
@@ -2057,12 +2865,97 @@
       });
     }
 
+    function bookEditFormHTML(item, isWish) {
+      const v = (x) => escapeHTML(x === null || x === undefined ? "" : x);
+      return `
+        <details class="edit-panel">
+          <summary>✎ Edit ${isWish ? "buku wishlist" : "buku"} ini (mode edit)</summary>
+          <form id="edit-form" class="form-grid">
+            <div class="form-group full-width">
+              <label for="ed-cover" class="form-label">Link Gambar Cover</label>
+              <input id="ed-cover" class="input-field" type="text" value="${v(item.cover)}" placeholder="https://... atau cover/nama.jpg (kosong = blok warna)" />
+            </div>
+            <div class="form-group">
+              <label for="ed-title" class="form-label">Judul</label>
+              <input id="ed-title" class="input-field" type="text" required value="${v(item.judul)}" />
+            </div>
+            <div class="form-group">
+              <label for="ed-author" class="form-label">Penulis</label>
+              <input id="ed-author" class="input-field" type="text" required value="${v(item.penulis)}" />
+            </div>
+            ${isWish ? `
+            <div class="form-group">
+              <label for="ed-year" class="form-label">Tahun Terbit</label>
+              <input id="ed-year" class="input-field" type="number" min="1000" max="2100" value="${v(item.tahunTerbit)}" />
+            </div>` : `
+            <div class="form-group">
+              <label for="ed-status" class="form-label">Status</label>
+              <select id="ed-status" class="input-field">
+                ${["Sudah dibeli", "Sedang dibaca", "Tamat"].map(st => `<option value="${st}"${item.status === st ? " selected" : ""}>${st}</option>`).join("")}
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="ed-rating" class="form-label">Rating (1 – 5, kosong = belum)</label>
+              <input id="ed-rating" class="input-field" type="number" min="1" max="5" step="0.1" value="${v(item.rating)}" />
+            </div>
+            <div class="form-group">
+              <label for="ed-date" class="form-label">Tanggal Selesai</label>
+              <input id="ed-date" class="input-field" type="date" value="${v(toInputDate(item.tanggalSelesai))}" />
+            </div>
+            <div class="form-group full-width">
+              <label for="ed-quote" class="form-label">Kutipan Favorit (satu kutipan per baris)</label>
+              <textarea id="ed-quote" class="input-field">${v(toQuotes(item.kutipan).join("\n"))}</textarea>
+            </div>
+            <div class="form-group full-width">
+              <label for="ed-note" class="form-label">Catatan Singkat</label>
+              <textarea id="ed-note" class="input-field">${v(item.catatan)}</textarea>
+            </div>`}
+            <div class="form-actions full-width edit-actions">
+              <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+              <button type="button" class="btn btn-danger" id="ed-delete">Hapus</button>
+            </div>
+          </form>
+        </details>
+      `;
+    }
+
+    function saveEditForm(id, isWish) {
+      const val = (elId) => document.getElementById(elId).value.trim();
+      const fields = {
+        cover: val("ed-cover"),
+        judul: val("ed-title"),
+        penulis: val("ed-author")
+      };
+      if (!fields.judul || !fields.penulis) return false;
+
+      if (isWish) {
+        const yr = val("ed-year");
+        fields.tahunTerbit = yr ? (parseInt(yr, 10) || yr) : "";
+      } else {
+        fields.status = val("ed-status");
+        const ratingRaw = val("ed-rating");
+        let rating = null;
+        if (ratingRaw !== "") {
+          const num = parseFloat(ratingRaw);
+          if (!Number.isNaN(num)) rating = Math.min(5, Math.max(1, Math.round(num * 10) / 10));
+        }
+        fields.rating = rating;
+        fields.tanggalSelesai = val("ed-date") || null;
+        fields.kutipan = quotesFromTextarea(document.getElementById("ed-quote").value);
+        fields.catatan = val("ed-note");
+      }
+      persistEdit(id, fields, isWish ? STORAGE_KEYS.customWishlist : STORAGE_KEYS.customBooks);
+      return true;
+    }
+
     function openBookModal(bookId) {
-      const book = state.books.find(b => b.id === bookId);
-      if (!book) return;
+      const found = findItem(bookId);
+      if (!found) return;
+      const { item: book, isWish } = found;
 
       state.activeBookId = bookId;
       state.activeTab = "detail";
+      state.activeIsWish = isWish;
 
       const backdrop = document.getElementById("book-modal-backdrop");
       const cover = document.getElementById("modal-cover");
@@ -2072,26 +2965,85 @@
 
       document.getElementById("modal-book-title").textContent = book.judul;
       document.getElementById("modal-book-author").textContent = book.penulis;
-      renderModalStars(book.rating);
+      if (isWish) {
+        document.getElementById("modal-stars").innerHTML = "";
+      } else {
+        renderModalStars(book.rating);
+      }
 
       const detailPanel = document.getElementById("tab-panel-detail");
       const analisisPanel = document.getElementById("tab-panel-analisis");
       const analisisTabBtn = document.getElementById("tab-analisis-btn");
-      const isFinished = book.status === "Tamat";
+      const isFinished = !isWish && book.status === "Tamat";
 
+      const quotes = toQuotes(book.kutipan);
+      const quoteSection = isWish ? "" : `
+        <div class="analysis-block">
+          <h4>Kutipan Favorit</h4>
+          ${quotes.length > 0
+            ? quotes.map(q => `<blockquote class="quote-box">${escapeHTML(q)}</blockquote>`).join("")
+            : `<p style="color:var(--text-secondary);">Belum ada kutipan favorit yang disimpan untuk buku ini.</p>`}
+        </div>`;
+
+      const statusText = isWish ? (book.status || "Mau dibaca") : book.status;
       detailPanel.innerHTML = `
         <div class="analysis-block">
           <h4>Status Baca</h4>
-          <span class="status-badge ${getStatusClass(book.status)}">${escapeHTML(book.status)}</span>
+          <div class="book-meta-row">
+            <span class="status-badge ${isWish ? "status-wishlist" : getStatusClass(book.status)}">${escapeHTML(statusText)}</span>
+            ${!isWish && book.tanggalSelesai ? `<span class="book-date-pill">📅 Selesai: ${escapeHTML(formatTanggal(book.tanggalSelesai))}</span>` : ""}
+            ${isWish && book.tahunTerbit ? `<span class="book-date-pill">Terbit ${escapeHTML(book.tahunTerbit)}</span>` : ""}
+          </div>
         </div>
+        ${quoteSection}
+        ${isWish ? "" : `
         <div class="analysis-block">
           <h4>Catatan Singkat</h4>
           <p>${escapeHTML(book.catatan || "Belum ada catatan singkat.")}</p>
+        </div>`}
+        ${isWish
+          ? `<div class="locked-notice">Buku ini masih di wishlist. Pindahkan ke rak kalau sudah dibeli.</div>`
+          : (!isFinished ? `<div class="locked-notice">Selesaikan dulu bukunya untuk membuka tab analisis mendalam.</div>` : "")}
+        <div class="modal-actions">
+          ${isWish ? `<button type="button" class="btn btn-primary" id="modal-move-btn">+ Pindah ke Rak</button>` : ""}
+          <button type="button" class="btn btn-secondary" id="modal-share-btn">Bagikan buku ini</button>
         </div>
-        ${!isFinished ? `<div class="locked-notice">Selesaikan dulu bukunya untuk membuka tab analisis mendalam.</div>` : ""}
+        ${EDIT_MODE ? bookEditFormHTML(book, isWish) : ""}
       `;
 
-      // Buku belum tamat tidak punya tab analisis
+      document.getElementById("modal-share-btn").addEventListener("click", () => {
+        const base = location.href.split("#")[0].split("?")[0];
+        copyText(`${base}#buku-${encodeURIComponent(book.id)}`, "Link buku disalin!");
+      });
+      const moveBtn = document.getElementById("modal-move-btn");
+      if (moveBtn) {
+        moveBtn.addEventListener("click", () => {
+          closeBookModal();
+          moveWishlistToShelf(book.id);
+        });
+      }
+      if (EDIT_MODE) {
+        document.getElementById("edit-form").addEventListener("submit", (e) => {
+          e.preventDefault();
+          if (!saveEditForm(book.id, isWish)) return;
+          loadBooks();
+          loadWishlist();
+          refreshAll();
+          showToast("Perubahan disimpan di browser ini. Ekspor ke kode biar permanen.");
+          openBookModal(book.id);
+        });
+        document.getElementById("ed-delete").addEventListener("click", () => {
+          if (!confirm(`Hapus "${book.judul}"?`)) return;
+          removeItem(book.id, isWish ? STORAGE_KEYS.customWishlist : STORAGE_KEYS.customBooks);
+          closeBookModal();
+          loadBooks();
+          loadWishlist();
+          refreshAll();
+          showToast("Buku dihapus.");
+        });
+      }
+
+      // Buku belum tamat (atau wishlist) tidak punya tab analisis
       if (!isFinished) {
         analisisTabBtn.hidden = true;
         analisisPanel.innerHTML = "";
@@ -2169,6 +3121,10 @@
       backdrop.classList.add("is-open");
       backdrop.setAttribute("aria-hidden", "false");
       document.body.style.overflow = "hidden";
+
+      try {
+        history.replaceState(null, "", `${location.pathname}${location.search}#buku-${encodeURIComponent(bookId)}`);
+      } catch (e) { /* abaikan */ }
     }
 
     function switchModalTab(tabName) {
@@ -2195,6 +3151,28 @@
       backdrop.classList.remove("is-open");
       backdrop.setAttribute("aria-hidden", "true");
       document.body.style.overflow = "";
+
+      if (location.hash.startsWith("#buku-")) {
+        try {
+          history.replaceState(null, "", `${location.pathname}${location.search}${state.activeIsWish ? "#wishlist" : "#rak-buku"}`);
+        } catch (e) { /* abaikan */ }
+      }
+    }
+
+    // Buka modal otomatis kalau link berisi #buku-<id>
+    function handleBookHash() {
+      if (!location.hash.startsWith("#buku-")) return;
+      let id = "";
+      try {
+        id = decodeURIComponent(location.hash.slice(6));
+      } catch (e) {
+        return;
+      }
+      const found = findItem(id);
+      if (!found) return;
+      const sec = document.getElementById(found.isWish ? "wishlist" : "rak-buku");
+      if (sec) window.scrollTo({ top: Math.max(0, sec.offsetTop - 70), behavior: "auto" });
+      openBookModal(id);
     }
 
     function initModal() {
@@ -2211,6 +3189,117 @@
       document.getElementById("modal-tabs").addEventListener("click", (e) => {
         const btn = e.target.closest(".tab-btn[data-tab]");
         if (btn && !btn.hidden) switchModalTab(btn.dataset.tab);
+      });
+    }
+
+    /* ==========================================================================
+       MODE EDIT: ekspor data ke kode & reset data lokal
+       ========================================================================== */
+    function cleanBookForExport(b) {
+      return {
+        id: b.id,
+        judul: b.judul,
+        penulis: b.penulis,
+        status: b.status,
+        rating: b.rating === undefined || b.rating === "" ? null : b.rating,
+        tanggalSelesai: b.tanggalSelesai || null,
+        kutipan: b.kutipan === undefined ? "" : b.kutipan,
+        catatan: b.catatan || "",
+        cover: b.cover || "",
+        gradient: b.gradient || COVER_GRADIENTS[0]
+      };
+    }
+
+    function cleanWishForExport(w) {
+      return {
+        id: w.id,
+        judul: w.judul,
+        penulis: w.penulis,
+        tahunTerbit: w.tahunTerbit === undefined ? "" : w.tahunTerbit,
+        status: "Mau dibaca",
+        cover: w.cover || "",
+        gradient: w.gradient || COVER_GRADIENTS[0]
+      };
+    }
+
+    function buildExportCode() {
+      const indent = (txt) => txt.split("\n").join("\n    ");
+      const books = JSON.stringify(state.books.map(cleanBookForExport), null, 2);
+      const wish = JSON.stringify(state.wishlist.map(cleanWishForExport), null, 2);
+      return `    const INITIAL_BOOKS = ${indent(books)};\n\n    const INITIAL_WISHLIST = ${indent(wish)};\n`;
+    }
+
+    function initEditMode() {
+      if (!EDIT_MODE) return;
+
+      const bar = document.createElement("div");
+      bar.className = "edit-bar";
+      bar.innerHTML = `
+        <strong>Mode Edit</strong>
+        <button type="button" class="btn-mini" id="edit-export-btn">Ekspor ke Kode</button>
+        <button type="button" class="btn-mini" id="edit-reset-btn">Reset Data Lokal</button>
+        <button type="button" class="btn-mini" id="edit-exit-btn">Keluar</button>
+      `;
+      document.body.appendChild(bar);
+
+      const ex = document.createElement("div");
+      ex.id = "export-backdrop";
+      ex.className = "modal-backdrop";
+      ex.setAttribute("role", "dialog");
+      ex.setAttribute("aria-modal", "true");
+      ex.setAttribute("aria-hidden", "true");
+      ex.innerHTML = `
+        <div class="modal-dialog export-box">
+          <div class="modal-top">
+            <h3 class="book-title" style="font-size:1.15rem;">Ekspor ke Kode</h3>
+            <button id="export-close-btn" class="icon-btn" type="button" aria-label="Tutup">✕</button>
+          </div>
+          <div class="export-help">
+            <ol>
+              <li>Tekan <strong>Salin</strong>.</li>
+              <li>Buka <code>index.html</code> di GitHub (ikon pensil), cari <code>const INITIAL_BOOKS</code>.</li>
+              <li>Ganti dua blok <code>INITIAL_BOOKS</code> dan <code>INITIAL_WISHLIST</code> dengan hasil salinan ini, lalu Commit.</li>
+              <li>Opsional: tekan <strong>Reset Data Lokal</strong> supaya browser ini ikut data baru dari kode.</li>
+            </ol>
+            Analisis (<code>BOOK_ANALYSES</code>) tidak ikut diekspor, edit langsung di kode.
+          </div>
+          <textarea id="export-output" class="input-field" readonly></textarea>
+          <div class="modal-actions">
+            <button type="button" class="btn btn-primary" id="export-copy-btn">Salin</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(ex);
+
+      const closeExport = () => {
+        ex.classList.remove("is-open");
+        ex.setAttribute("aria-hidden", "true");
+        document.body.style.overflow = "";
+      };
+
+      document.getElementById("edit-export-btn").addEventListener("click", () => {
+        document.getElementById("export-output").value = buildExportCode();
+        ex.classList.add("is-open");
+        ex.setAttribute("aria-hidden", "false");
+        document.body.style.overflow = "hidden";
+      });
+      document.getElementById("export-close-btn").addEventListener("click", closeExport);
+      ex.addEventListener("click", (e) => { if (e.target === ex) closeExport(); });
+      document.getElementById("export-copy-btn").addEventListener("click", () => {
+        const out = document.getElementById("export-output");
+        out.focus();
+        out.select();
+        copyText(out.value, "Kode disalin! Tempel ke index.html");
+      });
+      document.getElementById("edit-reset-btn").addEventListener("click", () => {
+        if (!confirm("Hapus semua perubahan lokal (edit, buku tambahan, buku terhapus) di browser ini?")) return;
+        [STORAGE_KEYS.customBooks, STORAGE_KEYS.customWishlist, STORAGE_KEYS.overrides, STORAGE_KEYS.hidden].forEach(k => {
+          try { localStorage.removeItem(k); } catch (e) { /* abaikan */ }
+        });
+        location.reload();
+      });
+      document.getElementById("edit-exit-btn").addEventListener("click", () => {
+        location.href = location.href.split("#")[0].split("?")[0];
       });
     }
 
@@ -2253,15 +3342,22 @@
       initProfile();
       initTheme();
       loadBooks();
+      loadWishlist();
+      renderTop3();
       renderBooks(false);
+      renderWishlist();
       updateStatistics(false);
       initNavigation();
       initRevealObserver();
       initRipple();
       initShelfControls();
       initModal();
+      initChart();
+      initEditMode();
       initContactActions();
       startTypingEffect();
+      handleBookHash();
+      window.addEventListener("hashchange", handleBookHash);
     });
   </script>
 </body>
