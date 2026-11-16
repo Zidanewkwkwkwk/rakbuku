@@ -1554,6 +1554,21 @@
       margin: 0.4rem 0 0.8rem;
     }
     .export-help ol { padding-left: 1.2rem; display: flex; flex-direction: column; gap: 0.25rem; }
+    .showcase-preview img {
+      display: block;
+      max-width: 100%;
+      max-height: 62vh;
+      margin: 0 auto;
+      border-radius: 14px;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-secondary);
+    }
+    .showcase-help {
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+      margin-top: 0.8rem;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
@@ -3006,6 +3021,7 @@
           : (!isFinished ? `<div class="locked-notice">Selesaikan dulu bukunya untuk membuka tab analisis mendalam.</div>` : "")}
         <div class="modal-actions">
           ${isWish ? `<button type="button" class="btn btn-primary" id="modal-move-btn">+ Pindah ke Rak</button>` : ""}
+          ${isFinished ? `<button type="button" class="btn btn-primary" id="modal-showcase-btn">Pamerkan ke Story</button>` : ""}
           <button type="button" class="btn btn-secondary" id="modal-share-btn">Bagikan buku ini</button>
         </div>
         ${EDIT_MODE ? bookEditFormHTML(book, isWish) : ""}
@@ -3015,6 +3031,8 @@
         const base = location.href.split("#")[0].split("?")[0];
         copyText(`${base}#buku-${encodeURIComponent(book.id)}`, "Link buku disalin!");
       });
+      const showcaseBtn = document.getElementById("modal-showcase-btn");
+      if (showcaseBtn) showcaseBtn.addEventListener("click", () => openShowcase(book.id));
       const moveBtn = document.getElementById("modal-move-btn");
       if (moveBtn) {
         moveBtn.addEventListener("click", () => {
@@ -3190,6 +3208,365 @@
         const btn = e.target.closest(".tab-btn[data-tab]");
         if (btn && !btn.hidden) switchModalTab(btn.dataset.tab);
       });
+    }
+
+    /* ==========================================================================
+       PAMERKAN: kartu gambar ukuran Story (1080 x 1920) untuk buku yang sudah tamat
+       ========================================================================== */
+    const SHOWCASE_W = 1080;
+    const SHOWCASE_H = 1920;
+
+    function gradientColors(gradient) {
+      const found = String(gradient || "").match(/#[0-9a-fA-F]{6}/g);
+      return found && found.length >= 2 ? found : ["#7c3aed", "#2563eb"];
+    }
+
+    function loadCoverImage(src) {
+      return new Promise((resolve) => {
+        if (!src) return resolve(null);
+        const img = new Image();
+        if (!/^data:/i.test(src)) img.crossOrigin = "anonymous";
+        const timer = setTimeout(() => resolve(null), 7000);
+        img.onload = () => { clearTimeout(timer); resolve(img); };
+        img.onerror = () => { clearTimeout(timer); resolve(null); };
+        img.src = src;
+      });
+    }
+
+    function roundRectPath(ctx, x, y, w, h, r) {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.arcTo(x + w, y, x + w, y + h, r);
+      ctx.arcTo(x + w, y + h, x, y + h, r);
+      ctx.arcTo(x, y + h, x, y, r);
+      ctx.arcTo(x, y, x + w, y, r);
+      ctx.closePath();
+    }
+
+    function starPath(ctx, cx, cy, outer) {
+      const inner = outer * 0.48;
+      ctx.beginPath();
+      for (let i = 0; i < 10; i++) {
+        const ang = -Math.PI / 2 + (i * Math.PI) / 5;
+        const r = i % 2 === 0 ? outer : inner;
+        const px = cx + Math.cos(ang) * r;
+        const py = cy + Math.sin(ang) * r;
+        if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+      }
+      ctx.closePath();
+    }
+
+    // Pecah teks jadi baris sesuai lebar. Kembalikan {lines, truncated}
+    function wrapLines(ctx, text, maxWidth, maxLines) {
+      const words = String(text).split(/\s+/).filter(Boolean);
+      const lines = [];
+      let line = "";
+      let i = 0;
+      for (; i < words.length; i++) {
+        const test = line ? `${line} ${words[i]}` : words[i];
+        if (ctx.measureText(test).width <= maxWidth || !line) {
+          line = test;
+        } else {
+          lines.push(line);
+          line = words[i];
+          if (lines.length === maxLines) break;
+        }
+      }
+      let truncated = false;
+      if (lines.length < maxLines && line) {
+        lines.push(line);
+        i = words.length;
+      }
+      if (i < words.length) truncated = true;
+      if (truncated && lines.length) {
+        let last = lines[lines.length - 1];
+        while (last && ctx.measureText(last + "…").width > maxWidth) last = last.slice(0, -1);
+        lines[lines.length - 1] = last.replace(/[\s,.;:!?-]+$/, "") + "…";
+      }
+      return lines;
+    }
+
+    function pickShowcaseQuote(book) {
+      const quotes = toQuotes(book.kutipan);
+      if (quotes.length === 0) return "";
+      const short = quotes.filter(q => q.length <= 200).sort((a, b) => a.length - b.length)[0];
+      return short || quotes[0];
+    }
+
+    async function renderShowcaseCanvas(book) {
+      const W = SHOWCASE_W, H = SHOWCASE_H;
+      const canvas = document.createElement("canvas");
+      canvas.width = W;
+      canvas.height = H;
+      const ctx = canvas.getContext("2d");
+      const fontFamily = getComputedStyle(document.body).fontFamily || "sans-serif";
+      const [c1, c2] = gradientColors(book.gradient);
+      const img = await loadCoverImage(book.cover);
+
+      // Latar
+      ctx.fillStyle = "#0b0d12";
+      ctx.fillRect(0, 0, W, H);
+      let g = ctx.createRadialGradient(W * 0.1, H * 0.12, 0, W * 0.1, H * 0.12, W * 1.1);
+      g.addColorStop(0, c1 + "88");
+      g.addColorStop(1, c1 + "00");
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, W, H);
+      g = ctx.createRadialGradient(W * 0.95, H * 0.85, 0, W * 0.95, H * 0.85, W * 1.2);
+      g.addColorStop(0, c2 + "77");
+      g.addColorStop(1, c2 + "00");
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, W, H);
+
+      ctx.textAlign = "center";
+      ctx.textBaseline = "alphabetic";
+
+      // Label atas (zona aman Story: sisakan ~250px atas dan bawah)
+      const tgl = formatTanggal(book.tanggalSelesai);
+      ctx.fillStyle = "#22d3ee";
+      ctx.font = `700 34px ${fontFamily}`;
+      ctx.fillText(tgl ? `SELESAI DIBACA  ·  ${tgl.toUpperCase()}` : "SELESAI DIBACA", W / 2, 290);
+
+      // Cover
+      const cw = 420, ch = 630;
+      const cx = (W - cw) / 2, cy = 330;
+      ctx.save();
+      ctx.shadowColor = "rgba(0,0,0,0.6)";
+      ctx.shadowBlur = 60;
+      ctx.shadowOffsetY = 28;
+      roundRectPath(ctx, cx, cy, cw, ch, 28);
+      ctx.fillStyle = "#111827";
+      ctx.fill();
+      ctx.restore();
+
+      ctx.save();
+      roundRectPath(ctx, cx, cy, cw, ch, 28);
+      ctx.clip();
+      if (img) {
+        const ratio = Math.max(cw / img.width, ch / img.height);
+        const dw = img.width * ratio, dh = img.height * ratio;
+        ctx.drawImage(img, cx + (cw - dw) / 2, cy + (ch - dh) / 2, dw, dh);
+      } else {
+        const cg = ctx.createLinearGradient(cx, cy, cx + cw, cy + ch);
+        cg.addColorStop(0, c1);
+        cg.addColorStop(1, c2);
+        ctx.fillStyle = cg;
+        ctx.fillRect(cx, cy, cw, ch);
+        ctx.fillStyle = "#ffffff";
+        ctx.font = `800 170px ${fontFamily}`;
+        ctx.textBaseline = "middle";
+        ctx.fillText(getInitials(book.judul), W / 2, cy + ch / 2);
+        ctx.textBaseline = "alphabetic";
+      }
+      ctx.restore();
+      ctx.save();
+      roundRectPath(ctx, cx, cy, cw, ch, 28);
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = "rgba(255,255,255,0.18)";
+      ctx.stroke();
+      ctx.restore();
+
+      // Judul
+      let y = cy + ch + 92;
+      ctx.fillStyle = "#ffffff";
+      ctx.font = `800 64px ${fontFamily}`;
+      const titleLines = wrapLines(ctx, book.judul, W - 200, 2);
+      titleLines.forEach((ln) => { ctx.fillText(ln, W / 2, y); y += 76; });
+
+      // Penulis
+      y += 2;
+      ctx.fillStyle = "#cbd5e1";
+      ctx.font = `500 40px ${fontFamily}`;
+      const authorLines = wrapLines(ctx, book.penulis, W - 240, 1);
+      ctx.fillText(authorLines[0] || "", W / 2, y);
+      y += 40;
+
+      // Rating bintang
+      const hasRating = book.rating !== null && book.rating !== undefined && book.rating !== "";
+      if (hasRating) {
+        const rating = Math.max(0, Math.min(5, Number(book.rating)));
+        const outer = 34, gap = 86;
+        const startX = W / 2 - gap * 2;
+        const sy = y + 60;
+        for (let i = 0; i < 5; i++) {
+          const sx = startX + gap * i;
+          starPath(ctx, sx, sy, outer);
+          ctx.fillStyle = "rgba(255,255,255,0.16)";
+          ctx.fill();
+          const frac = Math.max(0, Math.min(1, rating - i));
+          if (frac > 0) {
+            ctx.save();
+            ctx.beginPath();
+            ctx.rect(sx - outer, sy - outer, outer * 2 * frac, outer * 2);
+            ctx.clip();
+            starPath(ctx, sx, sy, outer);
+            ctx.fillStyle = "#fbbf24";
+            ctx.fill();
+            ctx.restore();
+          }
+        }
+        y = sy + outer + 50;
+        ctx.fillStyle = "#fbbf24";
+        ctx.font = `700 38px ${fontFamily}`;
+        ctx.fillText(`${rating.toFixed(1)} / 5`, W / 2, y);
+        y += 10;
+      }
+
+      // Kutipan
+      const quote = pickShowcaseQuote(book);
+      const footerY = 1590;
+      if (quote) {
+        y += 64;
+        ctx.font = `italic 500 40px ${fontFamily}`;
+        const lineH = 54;
+        const maxLines = Math.max(1, Math.min(4, Math.floor((footerY - 20 - y) / lineH)));
+        const qLines = wrapLines(ctx, `“${quote}”`, W - 280, maxLines);
+        const blockH = qLines.length * lineH;
+        ctx.fillStyle = "rgba(255,255,255,0.35)";
+        roundRectPath(ctx, 110, y - 36, 6, blockH, 3);
+        ctx.fill();
+        ctx.fillStyle = "#e2e8f0";
+        ctx.textAlign = "left";
+        qLines.forEach((ln, i) => ctx.fillText(ln, 150, y + i * lineH));
+        ctx.textAlign = "center";
+      }
+
+      // Footer
+      ctx.fillStyle = "#ffffff";
+      ctx.font = `700 36px ${fontFamily}`;
+      ctx.fillText(`Rak Buku ${PROFILE_DATA.nama}`, W / 2, footerY + 20);
+      ctx.fillStyle = "#94a3b8";
+      ctx.font = `500 30px ${fontFamily}`;
+      const sub = /^https?:$/.test(location.protocol)
+        ? `${location.host}${location.pathname.replace(/index\.html$/, "").replace(/\/$/, "")}`
+        : `@${PROFILE_DATA.tiktokUsername}`;
+      ctx.fillText(sub, W / 2, footerY + 68);
+
+      return { canvas, coverLoaded: !!img };
+    }
+
+    let showcaseUrl = null;
+    let showcaseBlob = null;
+
+    function ensureShowcaseDialog() {
+      let el = document.getElementById("showcase-backdrop");
+      if (el) return el;
+      el = document.createElement("div");
+      el.id = "showcase-backdrop";
+      el.className = "modal-backdrop";
+      el.setAttribute("role", "dialog");
+      el.setAttribute("aria-modal", "true");
+      el.setAttribute("aria-hidden", "true");
+      el.innerHTML = `
+        <div class="modal-dialog">
+          <div class="modal-top">
+            <h3 class="book-title" style="font-size:1.15rem;">Pamerkan ke Story</h3>
+            <button id="showcase-close-btn" class="icon-btn" type="button" aria-label="Tutup">✕</button>
+          </div>
+          <div class="showcase-preview" id="showcase-preview"></div>
+          <div class="modal-actions">
+            <button type="button" class="btn btn-primary" id="showcase-share-btn" hidden>Bagikan</button>
+            <button type="button" class="btn btn-secondary" id="showcase-save-btn">Simpan Gambar</button>
+          </div>
+          <p class="showcase-help" id="showcase-help"></p>
+        </div>
+      `;
+      document.body.appendChild(el);
+
+      el.addEventListener("click", (e) => { if (e.target === el) closeShowcase(); });
+      document.getElementById("showcase-close-btn").addEventListener("click", closeShowcase);
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && el.classList.contains("is-open")) closeShowcase();
+      });
+      document.getElementById("showcase-save-btn").addEventListener("click", () => {
+        if (!showcaseUrl) return;
+        const a = document.createElement("a");
+        a.href = showcaseUrl;
+        a.download = `rak-buku-${state.activeBookId || "buku"}.png`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        showToast("Gambar disimpan. Cek galeri atau folder Unduhan.");
+      });
+      document.getElementById("showcase-share-btn").addEventListener("click", async () => {
+        if (!showcaseBlob) return;
+        const file = new File([showcaseBlob], `rak-buku-${state.activeBookId || "buku"}.png`, { type: "image/png" });
+        try {
+          await navigator.share({ files: [file], title: "Rak Buku" });
+        } catch (err) {
+          if (err && err.name !== "AbortError") showToast("Gagal membuka menu bagikan. Pakai Simpan Gambar ya.");
+        }
+      });
+      return el;
+    }
+
+    function closeShowcase() {
+      const el = document.getElementById("showcase-backdrop");
+      if (!el) return;
+      el.classList.remove("is-open");
+      el.setAttribute("aria-hidden", "true");
+      if (showcaseUrl) {
+        URL.revokeObjectURL(showcaseUrl);
+        showcaseUrl = null;
+        showcaseBlob = null;
+      }
+      const bookOpen = document.getElementById("book-modal-backdrop").classList.contains("is-open");
+      if (!bookOpen) document.body.style.overflow = "";
+    }
+
+    async function openShowcase(bookId) {
+      const found = findItem(bookId);
+      if (!found || found.isWish) return;
+      const book = found.item;
+
+      const el = ensureShowcaseDialog();
+      const preview = document.getElementById("showcase-preview");
+      const help = document.getElementById("showcase-help");
+      const shareBtn = document.getElementById("showcase-share-btn");
+      const saveBtn = document.getElementById("showcase-save-btn");
+
+      preview.innerHTML = `<p class="showcase-help">Membuat kartu...</p>`;
+      help.textContent = "";
+      shareBtn.hidden = true;
+      saveBtn.disabled = true;
+      el.classList.add("is-open");
+      el.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";
+
+      let result;
+      try {
+        result = await renderShowcaseCanvas(book);
+      } catch (err) {
+        preview.innerHTML = `<p class="showcase-help">Gagal membuat gambar di browser ini.</p>`;
+        return;
+      }
+
+      const blob = await new Promise((resolve) => {
+        try {
+          result.canvas.toBlob((b) => resolve(b), "image/png");
+        } catch (err) {
+          resolve(null);
+        }
+      });
+      if (!blob) {
+        preview.innerHTML = `<p class="showcase-help">Gagal membuat gambar di browser ini.</p>`;
+        return;
+      }
+
+      if (showcaseUrl) URL.revokeObjectURL(showcaseUrl);
+      showcaseBlob = blob;
+      showcaseUrl = URL.createObjectURL(blob);
+      preview.innerHTML = `<img id="showcase-img" src="${showcaseUrl}" alt="Kartu pamer buku ${escapeHTML(book.judul)}" />`;
+      saveBtn.disabled = false;
+
+      const file = new File([blob], "rak-buku.png", { type: "image/png" });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) shareBtn.hidden = false;
+
+      const notes = [];
+      if (book.cover && !result.coverLoaded) {
+        notes.push("Cover dari link tidak bisa dimuat ke gambar, jadi dipakai blok warna. Cover dari file lokal biasanya aman.");
+      }
+      notes.push("Tambahkan gambar ini ke Story Instagram, lalu pasang link lewat stiker Link.");
+      help.textContent = notes.join(" ");
     }
 
     /* ==========================================================================
