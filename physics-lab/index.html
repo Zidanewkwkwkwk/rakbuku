@@ -1,1 +1,2670 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PHYSICS LAB 3D — Explore Physics Beyond the Textbook</title>
 
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            navy: {
+              950: '#040814',
+              900: '#070e21',
+              800: '#0c1633',
+              700: '#13224a',
+            },
+            electric: {
+              400: '#38bdf8',
+              500: '#0ea5e9',
+              600: '#0284c7',
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+            mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- Three.js (r128) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      background-color: #040814;
+      color: #f8fafc;
+      font-family: 'Inter', system-ui, sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #070e21;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1e3a6e;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #0ea5e9;
+    }
+
+    /* Lab Grid Background */
+    .lab-grid {
+      background-size: 44px 44px;
+      background-image:
+        linear-gradient(to right, rgba(14, 165, 233, 0.06) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(14, 165, 233, 0.06) 1px, transparent 1px);
+    }
+
+    /* Glow Accents */
+    .electric-glow {
+      box-shadow: 0 0 28px rgba(14, 165, 233, 0.25);
+    }
+    .glass-panel {
+      background: rgba(7, 14, 33, 0.82);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(56, 189, 248, 0.16);
+    }
+
+    /* Range Slider Styling */
+    input[type="range"].lab-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      height: 6px;
+      background: #13224a;
+      border-radius: 999px;
+      outline: none;
+    }
+    input[type="range"].lab-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #38bdf8;
+      border: 2px solid #040814;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.8);
+      cursor: pointer;
+      transition: transform 0.12s ease;
+    }
+    input[type="range"].lab-slider::-webkit-slider-thumb:hover {
+      transform: scale(1.15);
+    }
+    input[type="range"].lab-slider::-moz-range-thumb {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #38bdf8;
+      border: 2px solid #040814;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.8);
+      cursor: pointer;
+    }
+
+    #sim-canvas-container canvas {
+      display: block;
+      width: 100% !important;
+      height: 100% !important;
+      touch-action: none;
+    }
+  </style>
+</head>
+<body class="bg-navy-950 text-slate-100 min-h-screen flex flex-col selection:bg-electric-500/30 selection:text-electric-400">
+
+  <!-- TOP NAVIGATION BAR -->
+  <header class="sticky top-0 z-40 glass-panel border-b border-electric-500/20">
+    <div class="max-w-[1600px] mx-auto px-3 sm:px-6 h-16 flex items-center justify-between gap-2">
+      <!-- Brand Logo -->
+      <button onclick="navigateTo('home')" class="flex items-center gap-2.5 text-left group focus:outline-none">
+        <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-electric-400 to-blue-700 flex items-center justify-center text-navy-950 font-extrabold shadow-lg shadow-electric-500/25 group-hover:scale-105 transition-transform">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="2.2" fill="currentColor" />
+            <ellipse cx="12" cy="12" rx="9.5" ry="4" transform="rotate(30 12 12)" />
+            <ellipse cx="12" cy="12" rx="9.5" ry="4" transform="rotate(-30 12 12)" />
+            <ellipse cx="12" cy="12" rx="9.5" ry="4" transform="rotate(90 12 12)" />
+          </svg>
+        </div>
+        <div>
+          <div class="text-sm sm:text-base font-extrabold tracking-wider text-white flex items-center gap-1.5">
+            <span>PHYSICS LAB</span>
+            <span class="px-1.5 py-0.5 text-[10px] font-mono font-bold bg-electric-500/20 text-electric-400 border border-electric-400/40 rounded">3D</span>
+          </div>
+          <p class="text-[10px] text-slate-400 hidden sm:block">Fase E • Kurikulum Merdeka Kelas X</p>
+        </div>
+      </button>
+
+      <!-- Desktop Navigation -->
+      <nav class="hidden lg:flex items-center gap-1">
+        <button data-nav="home" onclick="navigateTo('home')" class="nav-btn px-3.5 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-navy-800 transition">Home</button>
+        <button data-nav="materi" onclick="navigateTo('materi')" class="nav-btn px-3.5 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-navy-800 transition">Materi</button>
+        <button data-nav="simulation" onclick="navigateTo('simulation')" class="nav-btn px-3.5 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-navy-800 transition">3D Simulation</button>
+        <button data-nav="experiment" onclick="navigateTo('experiment')" class="nav-btn px-3.5 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-navy-800 transition">Experiment</button>
+        <button data-nav="quiz" onclick="navigateTo('quiz')" class="nav-btn px-3.5 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-navy-800 transition">Quiz</button>
+        <button data-nav="progress" onclick="navigateTo('progress')" class="nav-btn px-3.5 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-navy-800 transition">Progress</button>
+      </nav>
+
+      <!-- Right Utility Buttons: Calculator & Unit Converter + Mobile Menu Toggle -->
+      <div class="flex items-center gap-2">
+        <button onclick="openToolModal('calc')" title="Kalkulator Rumus & Ilmiah" class="px-2.5 py-2 rounded-lg bg-navy-800 hover:bg-navy-700 border border-electric-500/25 text-xs font-medium text-electric-400 flex items-center gap-1.5 transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <rect x="4" y="2" width="16" height="20" rx="2" />
+            <line x1="8" y1="6" x2="16" y2="6" />
+            <line x1="8" y1="10" x2="10" y2="10" /><line x1="14" y1="10" x2="16" y2="10" />
+            <line x1="8" y1="14" x2="10" y2="14" /><line x1="14" y1="14" x2="16" y2="14" />
+            <line x1="8" y1="18" x2="16" y2="18" />
+          </svg>
+          <span class="hidden sm:inline">Kalkulator</span>
+        </button>
+
+        <button onclick="openToolModal('converter')" title="Konversi Satuan SI" class="px-2.5 py-2 rounded-lg bg-navy-800 hover:bg-navy-700 border border-electric-500/25 text-xs font-medium text-electric-400 flex items-center gap-1.5 transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4" />
+          </svg>
+          <span class="hidden sm:inline">Konversi</span>
+        </button>
+
+        <button onclick="toggleMobileMenu()" class="lg:hidden p-2 rounded-lg bg-navy-800 hover:bg-navy-700 border border-slate-700 text-slate-200" aria-label="Buka Menu">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Navigation Drawer -->
+    <div id="mobile-menu" class="hidden lg:hidden bg-navy-900 border-t border-slate-800 px-4 py-3 space-y-1">
+      <button data-nav="home" onclick="navigateTo('home'); toggleMobileMenu(false)" class="nav-btn w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-navy-800">Home</button>
+      <button data-nav="materi" onclick="navigateTo('materi'); toggleMobileMenu(false)" class="nav-btn w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-navy-800">Materi</button>
+      <button data-nav="simulation" onclick="navigateTo('simulation'); toggleMobileMenu(false)" class="nav-btn w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-navy-800">3D Simulation</button>
+      <button data-nav="experiment" onclick="navigateTo('experiment'); toggleMobileMenu(false)" class="nav-btn w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-navy-800">Experiment</button>
+      <button data-nav="quiz" onclick="navigateTo('quiz'); toggleMobileMenu(false)" class="nav-btn w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-navy-800">Quiz</button>
+      <button data-nav="progress" onclick="navigateTo('progress'); toggleMobileMenu(false)" class="nav-btn w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-navy-800">Progress</button>
+    </div>
+  </header>
+
+  <!-- MAIN APPLICATION CONTAINER -->
+  <main id="app-root" class="flex-1 lab-grid">
+    <!-- Dynamic Views Rendered by JavaScript -->
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="bg-navy-950 border-t border-slate-800/80 py-6 px-4 sm:px-6 text-center sm:text-left">
+    <div class="max-w-[1600px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
+      <div>
+        <span class="font-bold text-slate-200">PHYSICS LAB 3D</span> • Laboratorium Fisika Virtual Interaktif Kelas X SMA (Kurikulum Merdeka)
+      </div>
+      <div class="flex items-center gap-4">
+        <span>Mesin Fisika Real-Time 3D</span>
+        <span>•</span>
+        <span>Bahasa Indonesia</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- TOOL MODAL: KALKULATOR RUMUS & ILMIAH + KONVERSI SATUAN -->
+  <div id="tool-modal" class="fixed inset-0 z-50 hidden bg-black/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6">
+    <div class="bg-navy-900 border border-electric-500/30 rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+      <div class="px-5 py-4 bg-navy-800/90 border-b border-slate-700/70 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <button id="tab-tool-calc" onclick="switchToolTab('calc')" class="px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold bg-electric-500 text-navy-950 transition">
+            Kalkulator Rumus & Ilmiah
+          </button>
+          <button id="tab-tool-conv" onclick="switchToolTab('converter')" class="px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold bg-navy-900 text-slate-300 hover:text-white border border-slate-700 transition">
+            Konversi Satuan
+          </button>
+        </div>
+        <button onclick="closeToolModal()" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-navy-700 transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <div id="tool-modal-body" class="p-5 overflow-y-auto space-y-5">
+        <!-- Populated Dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST / NOTIFICATION BANNER -->
+  <div id="toast-box" class="fixed bottom-5 right-5 z-50 hidden max-w-sm px-4 py-3 rounded-xl bg-navy-800 border border-electric-400/50 text-sm text-white shadow-xl flex items-center gap-2.5">
+    <span class="w-2.5 h-2.5 rounded-full bg-electric-400 animate-pulse"></span>
+    <span id="toast-message">Pesan</span>
+  </div>
+
+  <script>
+    /* =========================================================================
+       1. DATA MODUL FISIKA KELAS X (FASE E - KURIKULUM MERDEKA)
+       ========================================================================= */
+    const MODULES = [
+      {
+        id: 'pengukuran',
+        code: 'MOD-01',
+        title: 'Pengukuran & Besaran Fisika',
+        shortDesc: 'Besaran pokok/turunan, satuan SI, dimensi, angka penting, jangka sorong & mikrometer sekrup.',
+        icon: '📏',
+        intro: 'Dalam sains, pengamatan kualitatif tidak cukup—kita memerlukan pengukuran kuantitatif yang presisi menggunakan satuan standar internasional (SI) dan alat ukur yang sesuai ketelitiannya.',
+        theory: 'Besaran pokok adalah besaran yang satuannya telah ditetapkan terlebih dahulu (panjang [m], massa [kg], waktu [s], suhu [K], kuat arus [A], intensitas cahaya [cd], jumlah zat [mol]). Besaran turunan disusun dari kombinasi besaran pokok. Ketelitian alat ukur menentukan ketidakpastian mutlak (Δx = 0,5 × NST). Jangka sorong memiliki ketelitian 0,1 mm (atau 0,01 cm), sedangkan mikrometer sekrup memiliki ketelitian 0,01 mm.',
+        formulas: [
+          { eq: 'x = (SU + SN × ketelitian) ± Δx', desc: 'Hasil pengukuran tunggal dengan ketidakpastian mutlak Δx = 0,5 × NST (satuan: mm atau cm)' },
+          { eq: 'KSR (%) = (Δx / x) × 100%', desc: 'Ketidakpastian relatif persentase menunjukkan tingkat presisi pengukuran (%)' }
+        ],
+        howItWorks: 'Skala utama membaca nilai penuh tepat sebelum tanda nol skala nonius. Skala nonius (vernier) membaca garis yang paling sejajar dengan garis skala utama, lalu dikalikan ketelitian alat (0,1 mm pada jangka sorong; 0,01 mm pada mikrometer sekrup).',
+        dailyExample: 'Montir bengkel mengukur diameter piston mesin menggunakan mikrometer sekrup agar celah ring piston presisi hingga seperseratus milimeter, dan mengukur diameter dalam pipa menggunakan rahang jangka sorong.',
+        sampleProblem: {
+          question: 'Sebuah jangka sorong (ketelitian 0,1 mm) menunjukkan skala utama 24 mm dan skala nonius garis ke-6 sejajar. Berapakah hasil pengukurannya?',
+          steps: [
+            '1. Baca Skala Utama (SU) = 24 mm.',
+            '2. Baca Skala Nonius (SN) = 6 × 0,1 mm = 0,6 mm.',
+            '3. Hitung hasil pengukuran: x = 24 mm + 0,6 mm = 24,6 mm.',
+            '4. Ketidakpastian Δx = 0,5 × 0,1 mm = 0,05 mm → (24,60 ± 0,05) mm.'
+          ]
+        },
+        summary: 'Pilih alat ukur sesuai ukuran dan tingkat ketelitian yang dibutuhkan. Perhatikan aturan angka penting (AP) pada hasil perhitungan agar akurasi data ilmiah tetap terjaga.',
+        sliders: [
+          { key: 'caliperPos', label: 'Posisi Rahang Jangka Sorong', min: 5, max: 45, step: 0.1, unit: 'mm', defaultVal: 18.4 },
+          { key: 'micrometerPos', label: 'Bukaan Mikrometer Sekrup', min: 1, max: 20, step: 0.01, unit: 'mm', defaultVal: 7.35 }
+        ],
+        calcPreset: {
+          name: 'Hasil Pengukuran (SU + SN × Ketelitian)',
+          vars: [
+            { id: 'su', label: 'Skala Utama (mm)', val: 24 },
+            { id: 'sn', label: 'Garis Nonius Sejajar', val: 6 },
+            { id: 'nst', label: 'Ketelitian Alat (mm)', val: 0.1 }
+          ],
+          compute: (v) => {
+            const res = v.su + v.sn * v.nst;
+            return {
+              result: `${res.toFixed(2)} mm`,
+              explanation: `x = ${v.su} + (${v.sn} × ${v.nst}) = ${res.toFixed(2)} mm`
+            };
+          }
+        }
+      },
+      {
+        id: 'vektor',
+        code: 'MOD-02',
+        title: 'Vektor',
+        shortDesc: 'Besaran vektor vs skalar, komponen vektor, penjumlahan, pengurangan & resultan vektor.',
+        icon: '↗️',
+        intro: 'Beberapa besaran fisika tidak cukup dinyatakan dengan nilai saja—perpindahan sejauh 10 km ke timur berbeda total dampaknya dibanding 10 km ke barat.',
+        theory: 'Besaran skalar hanya memiliki nilai (besar) dan satuan (contoh: massa, waktu, suhu, kelajuan). Besaran vektor memiliki besar dan arah (contoh: gaya, kecepatan, percepatan, perpindahan). Vektor dapat diuraikan ke sumbu X dan Y menggunakan trigonometri: Fx = F cos θ dan Fy = F sin θ. Resultan dua vektor gaya dirumuskan dengan aturan kosinus.',
+        formulas: [
+          { eq: 'Rx = A cos θA + B cos θB', desc: 'Komponen resultan pada sumbu horizontal X (satuan: N atau m)' },
+          { eq: 'Ry = A sin θA + B sin θB', desc: 'Komponen resultan pada sumbu vertikal Y (satuan: N atau m)' },
+          { eq: 'R = √(Rx² + Ry²)', desc: 'Besar vektor resultan total (satuan: N atau m)' }
+        ],
+        howItWorks: 'Setiap panah vektor merepresentasikan besar (panjang panah) dan arah (sudut θ terhadap sumbu +X). Dengan menjumlahkan proyeksi horizontal (cos) dan vertikal (sin), kita memperoleh vektor resultan R yang efeknya setara dengan gabungan semua vektor.',
+        dailyExample: 'Dua kapal tunda menarik tongkang dengan sudut dan gaya berbeda; arah gerak tongkang ditentukan oleh resultan kedua gaya tarik tersebut.',
+        sampleProblem: {
+          question: 'Vektor gaya F1 = 10 N ke arah 0° (sumbu +X) dan F2 = 10 N ke arah 90° (sumbu +Y). Berapakah besar resultannya?',
+          steps: [
+            '1. Rx = 10 cos(0°) + 10 cos(90°) = 10(1) + 10(0) = 10 N.',
+            '2. Ry = 10 sin(0°) + 10 sin(90°) = 10(0) + 10(1) = 10 N.',
+            '3. R = √(10² + 10²) = √200 ≈ 14,14 N dengan sudut 45°.'
+          ]
+        },
+        summary: 'Vektor dijumlahkan secara geometris/komponen, bukan aljabar biasa. Sudut 90° antara dua vektor sama besar menghasilkan resultan √2 kali besar salah satu vektor.',
+        sliders: [
+          { key: 'vecAMag', label: 'Besar Vektor A (Biru)', min: 1, max: 12, step: 0.5, unit: 'N', defaultVal: 6 },
+          { key: 'vecAAngle', label: 'Sudut Vektor A', min: 0, max: 360, step: 5, unit: '°', defaultVal: 25 },
+          { key: 'vecBMag', label: 'Besar Vektor B (Kuning)', min: 1, max: 12, step: 0.5, unit: 'N', defaultVal: 5 },
+          { key: 'vecBAngle', label: 'Sudut Vektor B', min: 0, max: 360, step: 5, unit: '°', defaultVal: 110 }
+        ],
+        calcPreset: {
+          name: 'Resultan 2 Vektor Tegak Lurus (R = √(A² + B²))',
+          vars: [
+            { id: 'a', label: 'Komponen Rx (N)', val: 8 },
+            { id: 'b', label: 'Komponen Ry (N)', val: 6 }
+          ],
+          compute: (v) => {
+            const r = Math.sqrt(v.a * v.a + v.b * v.b);
+            return {
+              result: `${r.toFixed(2)} N`,
+              explanation: `R = √(${v.a}² + ${v.b}²) = √(${v.a*v.a} + ${v.b*v.b}) = ${r.toFixed(2)} N`
+            };
+          }
+        }
+      },
+      {
+        id: 'gerak-lurus',
+        code: 'MOD-03',
+        title: 'Gerak Lurus (GLB & GLBB)',
+        shortDesc: 'Posisi, perpindahan, kecepatan, percepatan konstan, serta grafik x-t dan v-t real-time.',
+        icon: '🚗',
+        intro: 'Ketika mobil melaju di jalan tol lurus, kecepatannya bisa tetap konstan (GLB) atau bertambah/berkurang secara teratur saat digas atau direm (GLBB).',
+        theory: 'Jarak adalah panjang lintasan total (skalar), sedangkan perpindahan adalah perubahan posisi dari titik awal ke titik akhir (vektor). Pada Gerak Lurus Beraturan (GLB), percepatan a = 0 sehingga kecepatan v tetap. Pada Gerak Lurus Berubah Beraturan (GLBB), percepatan a konstan sehingga kecepatan berubah linear terhadap waktu dan posisi berubah kuadratik terhadap waktu.',
+        formulas: [
+          { eq: 'v(t) = v₀ + a·t', desc: 'Kecepatan sesaat pada waktu t (v₀: kecepatan awal [m/s], a: percepatan [m/s²], t: waktu [s])' },
+          { eq: 'x(t) = x₀ + v₀·t + ½·a·t²', desc: 'Posisi benda pada waktu t (satuan: meter [m])' }
+        ],
+        howItWorks: 'Jika percepatan a = 0, grafik v-t berupa garis mendatar dan grafik x-t berupa garis lurus miring. Jika a > 0, mobil mengalami percepatan sehingga grafik v-t menanjak dan grafik x-t melengkung ke atas.',
+        dailyExample: 'Kendaraan yang melaju stabil 60 km/jam di jalan lurus menerapkan prinsip GLB, sedangkan mobil yang mulai bergerak dari lampu merah dengan injakan gas tetap menerapkan GLBB dipercepat.',
+        sampleProblem: {
+          question: 'Mobil bergerak lurus dengan v₀ = 4 m/s dan percepatan konstan a = 2 m/s². Berapakah kecepatannya setelah t = 5 s?',
+          steps: [
+            '1. Diketahui: v₀ = 4 m/s, a = 2 m/s², t = 5 s.',
+            '2. Gunakan rumus v(t) = v₀ + a·t.',
+            '3. v(5) = 4 + (2 × 5) = 4 + 10 = 14 m/s.'
+          ]
+        },
+        summary: 'Percepatan adalah laju perubahan kecepatan per satuan waktu. Luas daerah di bawah grafik v-t menyatakan besar perpindahan benda.',
+        sliders: [
+          { key: 'v0', label: 'Kecepatan Awal (v₀)', min: 0, max: 20, step: 0.5, unit: 'm/s', defaultVal: 5 },
+          { key: 'accel', label: 'Percepatan (a)', min: -4, max: 8, step: 0.5, unit: 'm/s²', defaultVal: 2 }
+        ],
+        calcPreset: {
+          name: 'GLBB: Kecepatan & Perpindahan (v = v₀ + at)',
+          vars: [
+            { id: 'v0', label: 'Kecepatan Awal v₀ (m/s)', val: 5 },
+            { id: 'a', label: 'Percepatan a (m/s²)', val: 2 },
+            { id: 't', label: 'Waktu t (s)', val: 4 }
+          ],
+          compute: (v) => {
+            const vt = v.v0 + v.a * v.t;
+            const s = v.v0 * v.t + 0.5 * v.a * v.t * v.t;
+            return {
+              result: `v = ${vt.toFixed(2)} m/s | s = ${s.toFixed(2)} m`,
+              explanation: `v = ${v.v0} + (${v.a} × ${v.t}) = ${vt.toFixed(2)} m/s; s = ${v.v0}(${v.t}) + ½(${v.a})(${v.t}²) = ${s.toFixed(2)} m`
+            };
+          }
+        }
+      },
+      {
+        id: 'parabola',
+        code: 'MOD-04',
+        title: 'Gerak Parabola',
+        shortDesc: 'Komponen gerak horizontal GLB & vertikal GLBB, sudut elevasi, tinggi maks & jangkauan.',
+        icon: '🏀',
+        intro: 'Tendangan bebas bola atau tembakan proyektil tidak bergerak lurus, melainkan membentuk kurva parabola akibat kombinasi gerak maju dan tarikan gravitasi ke bawah.',
+        theory: 'Gerak parabola (peluru) adalah perpaduan dua gerak yang saling bebas: gerak horizontal (sumbu X) berupa GLB karena tidak ada percepatan horizontal (ax = 0), dan gerak vertikal (sumbu Y) berupa GLBB karena dipengaruhi percepatan gravitasi ke bawah (ay = -g). Titik tertinggi tercapai saat kecepatan vertikal vy = 0.',
+        formulas: [
+          { eq: 'vx = v₀ cos θ  |  vy(t) = v₀ sin θ − g·t', desc: 'Komponen kecepatan horizontal (tetap) dan vertikal (dipengaruhi gravitasi g)' },
+          { eq: 'H_max = (v₀² sin² θ) / (2g)', desc: 'Ketinggian maksimum yang dicapai benda (satuan: meter [m])' },
+          { eq: 'X_max = (v₀² sin 2θ) / g', desc: 'Jarak jangkauan horizontal maksimum pada bidang datar (satuan: meter [m])' }
+        ],
+        howItWorks: 'Saat diluncurkan dengan kecepatan awal v₀ dan sudut elevasi θ, komponen vertikal melambat hingga nol di puncak parabola lalu jatuh kembali dipercepat gravitasi. Pada bidang datar tanpa hambatan udara, sudut 45° memberikan jangkauan terjauh.',
+        dailyExample: 'Bola basket yang dilempar ke ring, air mancur yang menyembur miring, serta lompat jauh atlet mengikuti lintasan parabola.',
+        sampleProblem: {
+          question: 'Bola diluncurkan dengan v₀ = 20 m/s dan sudut elevasi 30° (g = 10 m/s²). Berapakah tinggi maksimumnya?',
+          steps: [
+            '1. Diketahui: v₀ = 20 m/s, θ = 30° (sin 30° = 0,5), g = 10 m/s².',
+            '2. H_max = (v₀² · sin² θ) / (2g).',
+            '3. H_max = (400 × 0,25) / (2 × 10) = 100 / 20 = 5 m.'
+          ]
+        },
+        summary: 'Gerak sumbu X dan sumbu Y berlangsung bersamaan dengan waktu t yang sama. Komponen horizontal tetap konstan sepanjang lintasan (mengabaikan hambatan udara).',
+        sliders: [
+          { key: 'launchSpeed', label: 'Kecepatan Awal (v₀)', min: 8, max: 30, step: 1, unit: 'm/s', defaultVal: 18 },
+          { key: 'launchAngle', label: 'Sudut Elevasi (θ)', min: 15, max: 80, step: 1, unit: '°', defaultVal: 45 },
+          { key: 'gravity', label: 'Gravitasi (g)', min: 4, max: 20, step: 0.5, unit: 'm/s²', defaultVal: 9.8 }
+        ],
+        calcPreset: {
+          name: 'Tinggi Maksimum & Jangkauan Parabola',
+          vars: [
+            { id: 'v0', label: 'Kecepatan Awal v₀ (m/s)', val: 20 },
+            { id: 'deg', label: 'Sudut Elevasi θ (derajat)', val: 45 },
+            { id: 'g', label: 'Gravitasi g (m/s²)', val: 9.8 }
+          ],
+          compute: (v) => {
+            const rad = (v.deg * Math.PI) / 180;
+            const hMax = Math.pow(v.v0 * Math.sin(rad), 2) / (2 * v.g);
+            const xMax = (v.v0 * v.v0 * Math.sin(2 * rad)) / v.g;
+            return {
+              result: `H_max = ${hMax.toFixed(2)} m | X_max = ${xMax.toFixed(2)} m`,
+              explanation: `H_max = (${v.v0}·sin ${v.deg}°)² / (2×${v.g}) = ${hMax.toFixed(2)} m; X_max = ${v.v0}²·sin(${2*v.deg}°) / ${v.g} = ${xMax.toFixed(2)} m`
+            };
+          }
+        }
+      },
+      {
+        id: 'hukum-newton',
+        code: 'MOD-05',
+        title: 'Hukum Newton tentang Gerak',
+        shortDesc: 'Hukum I, II, dan III Newton, gaya normal, gaya gesek statis/kinetis, dan percepatan balok.',
+        icon: '📦',
+        intro: 'Mengapa benda diam tetap diam, sedangkan benda yang didorong lebih kuat melaju lebih cepat? Hukum Newton menjelaskan hubungan antara gaya dan gerak.',
+        theory: 'Hukum I Newton (kelembaman): benda mempertahankan keadaannya jika resultan gaya ΣF = 0. Hukum II Newton: percepatan sebanding dengan resultan gaya dan berbanding terbalik dengan massa (a = ΣF / m). Gaya gesek kinetis (fk = μk · N) selalu berlawanan arah dengan gerak benda pada permukaan kasar, dengan gaya normal N = m·g pada bidang datar.',
+        formulas: [
+          { eq: 'N = m · g', desc: 'Gaya normal pada bidang datar horizontal (satuan: Newton [N])' },
+          { eq: 'fk = μk · N', desc: 'Gaya gesek kinetis maksimum/aktif saat benda bergerak (satuan: [N])' },
+          { eq: 'a = (F_dorong − fk) / m', desc: 'Percepatan benda saat F_dorong > fk (satuan: [m/s²]; jika F_dorong ≤ fk maka a = 0)' }
+        ],
+        howItWorks: 'Jika gaya dorong lebih kecil daripada gaya gesek kinetis (dan benda belum bergerak), balok tidak bergeser (a = 0). Begitu gaya dorong melampaui gaya gesek, kelebihan gaya (ΣF = F - fk) mempercepat balok sebesar a = ΣF / m.',
+        dailyExample: 'Sabuk pengaman menahan tubuh saat mobil direm mendadak (Hukum I), mendorong troli belanja kosong lebih mudah daripada yang penuh (Hukum II), dan sepatu beralas kasar mencegah tergelincir (gaya gesek).',
+        sampleProblem: {
+          question: 'Balok bermassa 5 kg di lantai datar (μk = 0,2; g = 10 m/s²) ditarik gaya mendatar 20 N. Berapakah percepatannya?',
+          steps: [
+            '1. Gaya normal N = m · g = 5 × 10 = 50 N.',
+            '2. Gaya gesek kinetis fk = μk · N = 0,2 × 50 = 10 N.',
+            '3. Resultan gaya ΣF = 20 N − 10 N = 10 N.',
+            '4. Percepatan a = ΣF / m = 10 / 5 = 2 m/s².'
+          ]
+        },
+        summary: 'Gaya gesek bergantung pada kekasaran permukaan (μ) dan gaya normal (N), bukan luas bidang sentuh. Percepatan selalu searah dengan resultan gaya.',
+        sliders: [
+          { key: 'massBlock', label: 'Massa Balok (m)', min: 1, max: 20, step: 0.5, unit: 'kg', defaultVal: 5 },
+          { key: 'pushForce', label: 'Gaya Dorong (F)', min: 0, max: 120, step: 2, unit: 'N', defaultVal: 35 },
+          { key: 'frictionCoeff', label: 'Koefisien Gesek (μ)', min: 0, max: 0.8, step: 0.05, unit: '', defaultVal: 0.25 }
+        ],
+        calcPreset: {
+          name: 'Hukum II Newton dengan Gaya Gesek (a = (F - μmg)/m)',
+          vars: [
+            { id: 'm', label: 'Massa m (kg)', val: 5 },
+            { id: 'f', label: 'Gaya Dorong F (N)', val: 35 },
+            { id: 'mu', label: 'Koefisien Gesek μ', val: 0.25 }
+          ],
+          compute: (v) => {
+            const g = 9.8;
+            const fk = v.mu * v.m * g;
+            const netF = Math.max(0, v.f - fk);
+            const a = netF / v.m;
+            return {
+              result: `a = ${a.toFixed(2)} m/s² (fk = ${fk.toFixed(2)} N)`,
+              explanation: `fk = ${v.mu} × ${v.m} × 9.8 = ${fk.toFixed(2)} N; ΣF = max(0, ${v.f} - ${fk.toFixed(2)}) = ${netF.toFixed(2)} N; a = ${netF.toFixed(2)} / ${v.m} = ${a.toFixed(2)} m/s²`
+            };
+          }
+        }
+      },
+      {
+        id: 'usaha-energi',
+        code: 'MOD-06',
+        title: 'Usaha dan Energi',
+        shortDesc: 'Energi potensial gravitasi, energi kinetik, energi mekanik & kekekalan energi pada lintasan.',
+        icon: '🎢',
+        intro: 'Mengapa kereta roller coaster bisa meluncur kencang di bagian bawah lintasan setelah naik perlahan ke puncak? Ini adalah kisah transformasi energi potensial menjadi energi kinetik.',
+        theory: 'Energi adalah kemampuan melakukan usaha. Energi potensial gravitasi (Ep = m·g·h) tersimpan karena ketinggian benda, sedangkan energi kinetik (Ek = ½·m·v²) dimiliki benda karena geraknya. Pada sistem konservatif (tanpa gesekan), energi mekanik total Em = Ep + Ek selalu kekal.',
+        formulas: [
+          { eq: 'Ep = m · g · h', desc: 'Energi potensial gravitasi (m: massa [kg], g: gravitasi [m/s²], h: tinggi [m], hasil: Joule [J])' },
+          { eq: 'Ek = ½ · m · v²', desc: 'Energi kinetik benda bergerak (v: kelajuan [m/s], hasil: Joule [J])' },
+          { eq: 'Em = Ep + Ek = konstan', desc: 'Hukum kekekalan energi mekanik pada lintasan tanpa gesekan (satuan: [J])' }
+        ],
+        howItWorks: 'Saat bola berada di ketinggian h dengan kecepatan awal v₀, energi mekaniknya Em = m·g·h + ½·m·v₀². Ketika ketinggian h turun menjadi h_baru, selisih energi potensial berubah menjadi energi kinetik sehingga kelajuan v meningkat.',
+        dailyExample: 'PLTA memanfaatkan energi potensial air bendungan untuk memutar turbin generator, sementara pendulum dan roller coaster terus menukar Ep dan Ek sepanjang lintasannya.',
+        sampleProblem: {
+          question: 'Benda bermassa 2 kg jatuh dari ketinggian h = 20 m (g = 10 m/s²). Berapakah energi kinetiknya saat ketinggian tersisa 5 m?',
+          steps: [
+            '1. Energi mekanik awal di h = 20 m: Em = 2 × 10 × 20 = 400 J.',
+            '2. Energi potensial di h = 5 m: Ep = 2 × 10 × 5 = 100 J.',
+            '3. Ek = Em − Ep = 400 J − 100 J = 300 J.'
+          ]
+        },
+        summary: 'Energi tidak dapat diciptakan atau dimusnahkan, hanya dapat berubah bentuk. Kelajuan benda bertambah dua kali lipat membuat energi kinetiknya bertambah empat kali lipat.',
+        sliders: [
+          { key: 'coasterMass', label: 'Massa Kereta/Bola (m)', min: 1, max: 15, step: 0.5, unit: 'kg', defaultVal: 4 },
+          { key: 'startHeight', label: 'Ketinggian Puncak (h)', min: 4, max: 25, step: 1, unit: 'm', defaultVal: 16 }
+        ],
+        calcPreset: {
+          name: 'Kelajuan dari Kekekalan Energi (v = √(2gh))',
+          vars: [
+            { id: 'h', label: 'Penurunan Tinggi Δh (m)', val: 15 },
+            { id: 'g', label: 'Gravitasi g (m/s²)', val: 9.8 }
+          ],
+          compute: (v) => {
+            const speed = Math.sqrt(2 * v.g * v.h);
+            return {
+              result: `v = ${speed.toFixed(2)} m/s`,
+              explanation: `m·g·Δh = ½·m·v² → v = √(2 × ${v.g} × ${v.h}) = ${speed.toFixed(2)} m/s`
+            };
+          }
+        }
+      },
+      {
+        id: 'momentum-impuls',
+        code: 'MOD-07',
+        title: 'Momentum dan Impuls',
+        shortDesc: 'Momentum linear, impuls gaya, hukum kekekalan momentum & tumbukan lenting/tidak lenting.',
+        icon: '🎱',
+        intro: 'Menangkap bola bowling yang melaju pelan terasa jauh lebih mudah dibanding menangkap bola yang melaju kencang, atau bola bermassa besar dengan kecepatan sama.',
+        theory: 'Momentum linear (p = m·v) adalah ukuran kesukaran menghentikan benda bergerak. Impuls (I = F·Δt) adalah hasil kali gaya dengan selang waktu kerjanya, yang sama dengan perubahan momentum (I = Δp). Pada tumbukan dua benda tanpa gaya luar, momentum total sebelum dan sesudah tumbukan selalu kekal (m1v1 + m2v2 = m1v1\' + m2v2\').',
+        formulas: [
+          { eq: 'p = m · v  |  I = F · Δt = Δp', desc: 'Momentum [kg·m/s] dan Impuls [N·s] = perubahan momentum' },
+          { eq: 'v1\' = ((m1 − m2)v1 + 2m2v2) / (m1 + m2)', desc: 'Kecepatan bola 1 setelah tumbukan lenting sempurna (e = 1)' },
+          { eq: 'v2\' = ((m2 − m1)v2 + 2m1v1) / (m1 + m2)', desc: 'Kecepatan bola 2 setelah tumbukan lenting sempurna (e = 1)' }
+        ],
+        howItWorks: 'Dua bola bertumbukan 1D di lintasan lurus. Jika tumbukan lenting sempurna (e = 1), momentum dan energi kinetik keduanya kekal. Jika tumbukan tidak lenting sama sekali (e = 0), kedua bola menyatu dan bergerak bersama setelah bertumbukan.',
+        dailyExample: 'Airbag mobil memperpanjang waktu kontak (Δt) saat tabrakan sehingga gaya impuls (F = Δp / Δt) yang diterima pengemudi jauh lebih kecil.',
+        sampleProblem: {
+          question: 'Bola bermassa 0,5 kg bergerak dengan kecepatan 6 m/s lalu dipukul hingga berbalik arah dengan kecepatan -4 m/s. Berapakah besar impulsnya?',
+          steps: [
+            '1. Momentum awal p1 = 0,5 × 6 = 3 kg·m/s.',
+            '2. Momentum akhir p2 = 0,5 × (-4) = -2 kg·m/s.',
+            '3. Impuls I = Δp = p2 − p1 = -2 − 3 = -5 N·s (besarnya 5 N·s berlawanan arah awal).'
+          ]
+        },
+        summary: 'Momentum total sistem terisolasi selalu kekal pada segala jenis tumbukan, sedangkan energi kinetik hanya kekal pada tumbukan lenting sempurna.',
+        sliders: [
+          { key: 'm1', label: 'Massa Bola 1 (Biru)', min: 1, max: 10, step: 0.5, unit: 'kg', defaultVal: 4 },
+          { key: 'v1', label: 'Kecepatan Awal Bola 1', min: -8, max: 12, step: 0.5, unit: 'm/s', defaultVal: 6 },
+          { key: 'm2', label: 'Massa Bola 2 (Oranye)', min: 1, max: 10, step: 0.5, unit: 'kg', defaultVal: 4 },
+          { key: 'v2', label: 'Kecepatan Awal Bola 2', min: -10, max: 8, step: 0.5, unit: 'm/s', defaultVal: -3 },
+          { key: 'restitution', label: 'Koefisien Restitusi (e)', min: 0, max: 1, step: 0.1, unit: '', defaultVal: 1 }
+        ],
+        calcPreset: {
+          name: 'Tumbukan Lenting Sempurna (e = 1)',
+          vars: [
+            { id: 'm1', label: 'Massa m1 (kg)', val: 4 },
+            { id: 'v1', label: 'Kecepatan v1 (m/s)', val: 6 },
+            { id: 'm2', label: 'Massa m2 (kg)', val: 2 },
+            { id: 'v2', label: 'Kecepatan v2 (m/s)', val: 0 }
+          ],
+          compute: (v) => {
+            const v1p = ((v.m1 - v.m2) * v.v1 + 2 * v.m2 * v.v2) / (v.m1 + v.m2);
+            const v2p = ((v.m2 - v.m1) * v.v2 + 2 * v.m1 * v.v1) / (v.m1 + v.m2);
+            return {
+              result: `v1' = ${v1p.toFixed(2)} m/s | v2' = ${v2p.toFixed(2)} m/s`,
+              explanation: `v1' = ((${v.m1}-${v.m2})·${v.v1} + 2·${v.m2}·${v.v2}) / (${v.m1}+${v.m2}) = ${v1p.toFixed(2)} m/s; v2' = ${v2p.toFixed(2)} m/s`
+            };
+          }
+        }
+      },
+      {
+        id: 'getaran-gelombang',
+        code: 'MOD-08',
+        title: 'Getaran dan Gelombang',
+        shortDesc: 'Gerak harmonik pegas/bandul, amplitudo, frekuensi, periode, panjang gelombang & cepat rambat.',
+        icon: '🌊',
+        intro: 'Senar gitar yang dipetik, ayunan bandul jam, dan riak air kolam menunjukkan pola berulang yang teratur—inilah inti dari getaran dan gelombang.',
+        theory: 'Getaran adalah gerak bolak-balik di sekitar titik setimbang. Amplitudo (A) adalah simpangan maksimum dari titik setimbang. Periode (T) adalah waktu satu getaran penuh, sedangkan frekuensi (f = 1/T) adalah jumlah getaran per detik. Gelombang merambatkan energi tanpa memindahkan medium secara permanen; cepat rambat gelombang v = λ · f.',
+        formulas: [
+          { eq: 'f = 1 / T  |  ω = 2πf', desc: 'Frekuensi f [Hz], periode T [s], dan frekuensi sudut ω [rad/s]' },
+          { eq: 'y(x,t) = A · sin(k·x − ω·t)', desc: 'Persamaan simpangan gelombang berjalan (A: amplitudo [m], k = 2π/λ bilangan gelombang)' },
+          { eq: 'v = λ · f', desc: 'Cepat rambat gelombang (λ: panjang gelombang [m], f: frekuensi [Hz], v: [m/s])' }
+        ],
+        howItWorks: 'Pegas berosilasi harmonik sederhana dengan simpangan y(t) = A cos(ωt), sementara gelombang merambat di sepanjang tali/permukaan dengan amplitudo A dan frekuensi f yang dapat kamu atur langsung.',
+        dailyExample: 'Gelombang suara memungkinkan kita mendengar musik, gelombang cahaya membawa citra ke mata kita, dan pegas peredam kejut meredam getaran kendaraan.',
+        sampleProblem: {
+          question: 'Suatu gelombang memiliki panjang gelombang λ = 1,5 m dan frekuensi f = 4 Hz. Berapakah cepat rambat gelombangnya?',
+          steps: [
+            '1. Diketahui: λ = 1,5 m dan f = 4 Hz.',
+            '2. Gunakan rumus v = λ · f.',
+            '3. v = 1,5 m × 4 Hz = 6 m/s.'
+          ]
+        },
+        summary: 'Frekuensi gelombang ditentukan oleh sumber getarnya. Cepat rambat gelombang bergantung pada sifat medium tempat gelombang merambat.',
+        sliders: [
+          { key: 'amplitude', label: 'Amplitudo (A)', min: 0.4, max: 2.2, step: 0.1, unit: 'm', defaultVal: 1.2 },
+          { key: 'frequency', label: 'Frekuensi (f)', min: 0.3, max: 3.0, step: 0.1, unit: 'Hz', defaultVal: 1.1 },
+          { key: 'wavelength', label: 'Panjang Gelombang (λ)', min: 1.5, max: 6.0, step: 0.25, unit: 'm', defaultVal: 3.0 }
+        ],
+        calcPreset: {
+          name: 'Cepat Rambat & Periode Gelombang (v = λ·f)',
+          vars: [
+            { id: 'lambda', label: 'Panjang Gelombang λ (m)', val: 2.5 },
+            { id: 'f', label: 'Frekuensi f (Hz)', val: 4 }
+          ],
+          compute: (v) => {
+            const vel = v.lambda * v.f;
+            const period = v.f > 0 ? 1 / v.f : 0;
+            return {
+              result: `v = ${vel.toFixed(2)} m/s | T = ${period.toFixed(2)} s`,
+              explanation: `v = ${v.lambda} × ${v.f} = ${vel.toFixed(2)} m/s; T = 1 / ${v.f} = ${period.toFixed(2)} s`
+            };
+          }
+        }
+      }
+    ];
+
+    /* =========================================================================
+       2. BANK SOAL KUIS INTERAKTIF KELAS X
+       ========================================================================= */
+    const MODULE_SVG = {
+      'pengukuran': '<path d="M3 17L17 3l4 4L7 21z"/><path d="M7 13l2 2M10 10l2 2M13 7l2 2"/>',
+      'vektor': '<path d="M5 19L19 5M10 5h9v9"/>',
+      'gerak-lurus': '<path d="M3 16h18v-4l-2-4H7l-4 4z"/><circle cx="7.5" cy="17" r="1.8"/><circle cx="16.5" cy="17" r="1.8"/>',
+      'parabola': '<path d="M3 20C7 4 17 4 21 20" stroke-dasharray="2 3"/><circle cx="12" cy="6.5" r="2" fill="currentColor"/>',
+      'hukum-newton': '<rect x="10" y="8" width="10" height="10" rx="1.5"/><path d="M2 13h6M5.5 10l3 3-3 3"/>',
+      'usaha-energi': '<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>',
+      'momentum-impuls': '<circle cx="6" cy="12" r="3"/><circle cx="18" cy="12" r="3"/><path d="M10 12h4M12 10l2 2-2 2"/>',
+      'getaran-gelombang': '<path d="M2 12c3-8 5-8 8 0s5 8 8 0c1.5-3 2.5-3.5 4-2"/>'
+    };
+    MODULES.forEach((m) => {
+      m.icon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.15em;height:1.15em;display:inline-block;vertical-align:-0.2em">${MODULE_SVG[m.id] || ''}</svg>`;
+    });
+
+    const QUIZ_BANK = [
+      {
+        moduleId: 'pengukuran',
+        q: 'Sebuah mikrometer sekrup memiliki ketelitian 0,01 mm. Jika skala utama menunjukkan 8,5 mm dan skala nonius garis ke-24 sejajar, berapakah hasil pengukurannya?',
+        options: ['8,24 mm', '8,74 mm', '10,90 mm', '8,52 mm'],
+        correct: 1,
+        explain: 'Hasil = SU + (SN × 0,01 mm) = 8,5 mm + (24 × 0,01 mm) = 8,5 + 0,24 = 8,74 mm.'
+      },
+      {
+        moduleId: 'vektor',
+        q: 'Dua gaya masing-masing 6 N dan 8 N saling tegak lurus (sudut 90°). Besar resultan kedua gaya tersebut adalah...',
+        options: ['14 N', '2 N', '10 N', '48 N'],
+        correct: 2,
+        explain: 'Karena saling tegak lurus, R = √(6² + 8²) = √(36 + 64) = √100 = 10 N.'
+      },
+      {
+        moduleId: 'gerak-lurus',
+        q: 'Benda bergerak lurus dengan kecepatan awal 2 m/s dan percepatan konstan 3 m/s². Kecepatan benda setelah 4 detik adalah...',
+        options: ['14 m/s', '12 m/s', '26 m/s', '8 m/s'],
+        correct: 0,
+        explain: 'Menggunakan v = v₀ + a·t = 2 + (3 × 4) = 14 m/s.'
+      },
+      {
+        moduleId: 'parabola',
+        q: 'Pada gerak parabola di bidang datar tanpa hambatan udara, sudut elevasi yang menghasilkan jangkauan horizontal maksimum adalah...',
+        options: ['30°', '45°', '60°', '90°'],
+        correct: 1,
+        explain: 'Jangkauan X_max = (v₀² sin 2θ)/g maksimum saat sin 2θ = 1, yaitu 2θ = 90° → θ = 45°.'
+      },
+      {
+        moduleId: 'hukum-newton',
+        q: 'Balok 10 kg diletakkan di lantai datar licin (tanpa gesekan) lalu ditarik gaya mendatar 25 N. Berapa percepatannya?',
+        options: ['250 m/s²', '0,4 m/s²', '2,5 m/s²', '15 m/s²'],
+        correct: 2,
+        explain: 'Menurut Hukum II Newton, a = ΣF / m = 25 N / 10 kg = 2,5 m/s².'
+      },
+      {
+        moduleId: 'usaha-energi',
+        q: 'Sebuah benda bermassa 3 kg berada pada ketinggian 10 m (g = 10 m/s²). Energi potensial gravitasinya adalah...',
+        options: ['30 J', '130 J', '300 J', '3.000 J'],
+        correct: 2,
+        explain: 'Ep = m · g · h = 3 kg × 10 m/s² × 10 m = 300 Joule.'
+      },
+      {
+        moduleId: 'momentum-impuls',
+        q: 'Impuls yang bekerja pada suatu benda selalu sama dengan...',
+        options: ['Energi kinetik akhir benda', 'Perubahan momentum benda', 'Percepatan rata-rata benda', 'Gaya normal benda'],
+        correct: 1,
+        explain: 'Teorema impuls-momentum menyatakan I = F·Δt = Δp (perubahan momentum).'
+      },
+      {
+        moduleId: 'getaran-gelombang',
+        q: 'Suatu getaran memiliki frekuensi 5 Hz. Berapakah periode getarannya?',
+        options: ['5 sekon', '0,2 sekon', '2 sekon', '25 sekon'],
+        correct: 1,
+        explain: 'Periode T = 1 / f = 1 / 5 Hz = 0,2 sekon.'
+      }
+    ];
+    QUIZ_BANK.push(
+      { moduleId: 'pengukuran', q: 'Jangka sorong (ketelitian 0,1 mm) menunjukkan skala utama 3,2 cm dan garis nonius ke-4 sejajar. Hasil pengukurannya adalah...', options: ['3,24 cm', '3,6 cm', '3,204 cm', '3,20 cm'], correct: 0, explain: 'SU = 32 mm, SN = 4 × 0,1 mm = 0,4 mm → 32,4 mm = 3,24 cm.' },
+      { moduleId: 'vektor', q: 'Dua gaya masing-masing 5 N bekerja pada satu titik dengan arah saling berlawanan. Besar resultannya adalah...', options: ['10 N', '5 N', '0 N', '25 N'], correct: 2, explain: 'Arah berlawanan saling mengurangi: R = 5 − 5 = 0 N.' },
+      { moduleId: 'gerak-lurus', q: 'Mobil bergerak GLB dengan kecepatan 20 m/s selama 15 s. Jarak yang ditempuh adalah...', options: ['35 m', '300 m', '75 m', '1,33 m'], correct: 1, explain: 's = v · t = 20 × 15 = 300 m.' },
+      { moduleId: 'parabola', q: 'Pada titik tertinggi lintasan gerak parabola, kecepatan vertikal benda adalah...', options: ['Maksimum', 'Sama dengan v₀', 'Nol', 'Sama dengan g'], correct: 2, explain: 'Di puncak, vy = v₀ sin θ − g·t = 0, sedangkan vx tetap konstan.' },
+      { moduleId: 'hukum-newton', q: 'Benda diam tetap diam dan benda bergerak lurus beraturan tetap demikian jika resultan gaya nol. Pernyataan ini adalah Hukum...', options: ['I Newton', 'II Newton', 'III Newton', 'Gravitasi Newton'], correct: 0, explain: 'Itulah Hukum I Newton (hukum kelembaman/inersia).' },
+      { moduleId: 'usaha-energi', q: 'Gaya 20 N mendorong benda sejauh 5 m searah gaya. Usaha yang dilakukan adalah...', options: ['4 J', '25 J', '100 J', '15 J'], correct: 2, explain: 'W = F · s = 20 × 5 = 100 J.' },
+      { moduleId: 'momentum-impuls', q: 'Bola bermassa 2 kg bergerak dengan kecepatan 3 m/s. Momentumnya adalah...', options: ['6 kg·m/s', '1,5 kg·m/s', '5 kg·m/s', '18 kg·m/s'], correct: 0, explain: 'p = m · v = 2 × 3 = 6 kg·m/s.' },
+      { moduleId: 'getaran-gelombang', q: 'Gelombang berfrekuensi 4 Hz memiliki panjang gelombang 2,5 m. Cepat rambatnya adalah...', options: ['0,625 m/s', '10 m/s', '1,5 m/s', '6,5 m/s'], correct: 1, explain: 'v = λ · f = 2,5 × 4 = 10 m/s.' }
+    );
+
+    /* =========================================================================
+       3. STATE APLIKASI & PENYIMPANAN LOKAL (LOCAL STORAGE)
+       ========================================================================= */
+    const STORAGE_KEY = 'physics_lab_3d_progress_v1';
+
+    function loadProgress() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          return JSON.parse(raw);
+        }
+      } catch (e) {
+        console.warn('Gagal membaca localStorage:', e);
+      }
+      return {
+        completedModules: [],
+        quizScores: {}, // moduleId -> { score, total, date }
+        challengesSolved: [],
+        totalSimTimeSec: 0
+      };
+    }
+
+    function saveProgress() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(appState.progress));
+      } catch (e) {
+        console.warn('Gagal menyimpan ke localStorage:', e);
+      }
+    }
+
+    const appState = {
+      route: 'home', // 'home' | 'materi' | 'simulation' | 'experiment' | 'quiz' | 'progress'
+      activeModuleId: 'parabola',
+      isPlaying: true,
+      simTime: 0,
+      params: {},
+      cameraPresetIndex: 0,
+      challengeTargetDist: 18,
+      challengeStatus: null,
+      quizIndex: 0,
+      quizSelected: null,
+      quizAnswers: [],
+      quizFinished: false,
+      progress: loadProgress(),
+      telemetryHistory: [] // { t, y1, y2 }
+    };
+
+    // Inisialisasi nilai parameter default dari semua modul
+    function initDefaultParams() {
+      MODULES.forEach((mod) => {
+        mod.sliders.forEach((s) => {
+          if (appState.params[s.key] === undefined) {
+            appState.params[s.key] = s.defaultVal;
+          }
+        });
+      });
+    }
+    initDefaultParams();
+
+    function showToast(msg) {
+      const box = document.getElementById('toast-box');
+      const text = document.getElementById('toast-message');
+      text.textContent = msg;
+      box.classList.remove('hidden');
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(() => {
+        box.classList.add('hidden');
+      }, 3000);
+    }
+
+    /* =========================================================================
+       4. NAVIGASI UTAMA & RENDER HALAMAN
+       ========================================================================= */
+    function navigateTo(route, moduleId = null) {
+      const keepScroll = appState.route === route && (!moduleId || moduleId === appState.activeModuleId);
+      const savedY = window.scrollY;
+      if (moduleId) {
+        appState.activeModuleId = moduleId;
+        appState.challengeTargetDist = pickChallengeTarget(moduleId);
+        resetSimState();
+      }
+      appState.route = route;
+
+      // Update active nav styling
+      document.querySelectorAll('.nav-btn').forEach((btn) => {
+        const isActive = btn.dataset.nav === route;
+        btn.classList.toggle('bg-electric-500/20', isActive);
+        btn.classList.toggle('text-electric-400', isActive);
+        btn.classList.toggle('border', isActive);
+        btn.classList.toggle('border-electric-400/40', isActive);
+      });
+
+      const root = document.getElementById('app-root');
+      destroyThreeScene();
+
+      if (route === 'home') {
+        root.innerHTML = renderHomeView();
+        initHeroMiniPreview();
+      } else if (route === 'materi') {
+        root.innerHTML = renderMateriListView();
+      } else if (route === 'simulation') {
+        root.innerHTML = renderSplitLabView({ mode: 'simulation' });
+        mountThreeLab('simulation');
+      } else if (route === 'experiment') {
+        root.innerHTML = renderSplitLabView({ mode: 'experiment' });
+        mountThreeLab('experiment');
+      } else if (route === 'quiz') {
+        root.innerHTML = renderQuizView();
+      } else if (route === 'progress') {
+        root.innerHTML = renderProgressView();
+      }
+
+      window.scrollTo(keepScroll ? { top: savedY } : { top: 0, behavior: 'smooth' });
+    }
+
+    function toggleMobileMenu(forceState = null) {
+      const menu = document.getElementById('mobile-menu');
+      if (forceState === false) {
+        menu.classList.add('hidden');
+      } else if (forceState === true) {
+        menu.classList.remove('hidden');
+      } else {
+        menu.classList.toggle('hidden');
+      }
+    }
+
+    /* =========================================================================
+       5. HALAMAN HOME (LANDING + PREVIEW 3D + KATALOG KELAS X)
+       ========================================================================= */
+    function renderHomeView() {
+      const completedCount = appState.progress.completedModules.length;
+      return `
+        <section class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-10 pt-8 pb-14 space-y-16">
+          <!-- Hero Grid -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            <div class="lg:col-span-7 space-y-6">
+              <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-electric-500/10 border border-electric-400/30 text-xs font-mono text-electric-400">
+                <span class="w-2 h-2 rounded-full bg-electric-400 animate-ping"></span>
+                <span>LABORATORIUM FISIKA VIRTUAL KELAS X SMA</span>
+              </div>
+
+              <h1 class="text-4xl sm:text-5xl xl:text-6xl font-extrabold tracking-tight text-white leading-[1.08]">
+                PHYSICS LAB <span class="text-transparent bg-clip-text bg-gradient-to-r from-electric-400 via-sky-300 to-blue-500">3D</span>
+              </h1>
+
+              <p class="text-lg sm:text-xl font-semibold text-electric-400 tracking-wide">
+                “Explore Physics Beyond the Textbook”
+              </p>
+
+              <p class="text-slate-300 text-sm sm:text-base leading-relaxed max-w-2xl">
+                Eksplorasi hukum fisika secara langsung di ruang 3D interaktif. Putar kamera 360°, geser serta manipulasi objek eksperimen, ubah parameter fisis secara real-time, dan amati grafik serta perhitungan matematisnya sesuai Fase E Kurikulum Merdeka.
+              </p>
+
+              <div class="flex flex-wrap items-center gap-3 pt-1">
+                <button onclick="navigateTo('simulation', 'parabola')" class="px-6 py-3.5 rounded-xl bg-gradient-to-r from-electric-500 to-blue-600 hover:from-electric-400 hover:to-blue-500 text-navy-950 font-extrabold text-sm sm:text-base shadow-lg shadow-electric-500/30 transition transform hover:-translate-y-0.5 flex items-center gap-2">
+                  <span>Mulai Eksperimen</span>
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  </svg>
+                </button>
+
+                <button onclick="navigateTo('materi')" class="px-5 py-3.5 rounded-xl bg-navy-800 hover:bg-navy-700 border border-slate-700 text-slate-100 font-semibold text-sm sm:text-base transition">
+                  Jelajahi 8 Modul Materi
+                </button>
+
+                <button onclick="navigateTo('experiment', 'hukum-newton')" class="px-5 py-3.5 rounded-xl bg-navy-900 hover:bg-navy-800 border border-electric-500/30 text-electric-400 font-semibold text-sm sm:text-base transition">
+                  Mode Eksperimen & Tantangan
+                </button>
+              </div>
+
+              <!-- Quick Stats -->
+              <div class="grid grid-cols-3 gap-3 pt-3 max-w-lg">
+                <div class="p-3.5 rounded-xl bg-navy-900/90 border border-slate-800">
+                  <div class="text-xl sm:text-2xl font-extrabold font-mono text-white">8</div>
+                  <div class="text-[11px] sm:text-xs text-slate-400">Simulasi 3D Aktif</div>
+                </div>
+                <div class="p-3.5 rounded-xl bg-navy-900/90 border border-slate-800">
+                  <div class="text-xl sm:text-2xl font-extrabold font-mono text-electric-400">Real-Time</div>
+                  <div class="text-[11px] sm:text-xs text-slate-400">Grafik & Rumus</div>
+                </div>
+                <div class="p-3.5 rounded-xl bg-navy-900/90 border border-slate-800">
+                  <div class="text-xl sm:text-2xl font-extrabold font-mono text-emerald-400">${completedCount}/8</div>
+                  <div class="text-[11px] sm:text-xs text-slate-400">Modul Selesai</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Interactive 3D Preview Card -->
+            <div class="lg:col-span-5">
+              <div class="rounded-2xl bg-navy-900/95 border border-electric-500/30 overflow-hidden electric-glow">
+                <div class="px-4 py-3 bg-navy-800/90 border-b border-slate-700/70 flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+                    <span class="text-xs font-mono font-semibold text-slate-200">LIVE 3D PREVIEW • GERAK PARABOLA</span>
+                  </div>
+                  <button onclick="navigateTo('simulation', 'parabola')" class="text-xs font-semibold text-electric-400 hover:underline">
+                    Buka Full Lab →
+                  </button>
+                </div>
+                <div id="hero-3d-preview" class="w-full h-72 sm:h-80 bg-navy-950 relative"></div>
+                <div class="p-4 bg-navy-900 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-400 border-t border-slate-800">
+                  <span>Seret untuk memutar kamera 360°</span>
+                  <span class="font-mono text-electric-400">v₀ = 18 m/s • θ = 45°</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Highlight 3D Simulations -->
+          <div class="space-y-5">
+            <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-2">
+              <div>
+                <p class="text-xs font-mono uppercase tracking-widest text-electric-400">Interaktivitas Fisika Nyata</p>
+                <h2 class="text-2xl sm:text-3xl font-bold text-white">Preview Simulasi 3D Unggulan</h2>
+              </div>
+              <button onclick="navigateTo('simulation')" class="text-sm font-semibold text-electric-400 hover:text-electric-300 transition">
+                Lihat Semua Simulasi →
+              </button>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+              ${['parabola', 'hukum-newton', 'usaha-energi', 'getaran-gelombang'].map((id) => {
+                const m = MODULES.find((item) => item.id === id);
+                return `
+                  <div class="group rounded-2xl bg-navy-900/90 hover:bg-navy-800/90 border border-slate-800 hover:border-electric-400/50 p-5 flex flex-col justify-between transition">
+                    <div class="space-y-3">
+                      <div class="flex items-center justify-between">
+                        <span class="text-2xl">${m.icon}</span>
+                        <span class="text-[11px] font-mono px-2 py-0.5 rounded bg-navy-950 text-electric-400 border border-electric-500/20">${m.code}</span>
+                      </div>
+                      <h3 class="text-lg font-bold text-white group-hover:text-electric-400 transition">${m.title}</h3>
+                      <p class="text-xs sm:text-sm text-slate-400 leading-relaxed">${m.shortDesc}</p>
+                    </div>
+                    <button onclick="navigateTo('simulation', '${m.id}')" class="mt-5 w-full py-2.5 rounded-xl bg-navy-950 group-hover:bg-electric-500 text-electric-400 group-hover:text-navy-950 font-bold text-xs sm:text-sm border border-electric-500/30 transition">
+                      Jalankan Simulasi 3D
+                    </button>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+
+          <!-- Full Curriculum Catalog (8 Modules) -->
+          <div class="space-y-5">
+            <div>
+              <p class="text-xs font-mono uppercase tracking-widest text-electric-400">Kurikulum Merdeka • Fase E</p>
+              <h2 class="text-2xl sm:text-3xl font-bold text-white">Katalog Materi Fisika Kelas 10 SMA</h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+              ${MODULES.map((m, idx) => {
+                const isDone = appState.progress.completedModules.includes(m.id);
+                return `
+                  <div class="rounded-2xl bg-navy-900/85 border ${isDone ? 'border-emerald-500/40' : 'border-slate-800'} p-5 flex flex-col justify-between hover:border-electric-400/40 transition">
+                    <div>
+                      <div class="flex items-center justify-between text-xs font-mono mb-2">
+                        <span class="text-slate-400">0${idx + 1} / 08</span>
+                        ${isDone
+                          ? '<span class="px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">Selesai</span>'
+                          : '<span class="px-2 py-0.5 rounded-full bg-navy-950 text-slate-400">Belum Selesai</span>'}
+                      </div>
+                      <h3 class="text-base font-bold text-white mb-1.5">${m.icon} ${m.title}</h3>
+                      <p class="text-xs text-slate-400 leading-relaxed">${m.shortDesc}</p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between gap-2">
+                      <button onclick="navigateTo('simulation', '${m.id}')" class="text-xs font-semibold text-electric-400 hover:underline">
+                        Pelajari & Simulasi →
+                      </button>
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        </section>
+      `;
+    }
+
+    /* =========================================================================
+       6. HALAMAN DAFTAR MATERI
+       ========================================================================= */
+    function renderMateriListView() {
+      return `
+        <section class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-10 py-8 space-y-6">
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <span class="text-xs font-mono text-electric-400 uppercase tracking-wider">Modul Pembelajaran Interaktif</span>
+              <h1 class="text-2xl sm:text-3xl font-extrabold text-white mt-1">Materi Fisika Kelas 10 SMA</h1>
+              <p class="text-sm text-slate-400 mt-1">Setiap modul dilengkapi teori lengkap, rumus & variabel, contoh soal langkah demi langkah, serta lab simulasi 3D.</p>
+            </div>
+            <button onclick="navigateTo('quiz')" class="px-4 py-2.5 rounded-xl bg-electric-500 hover:bg-electric-400 text-navy-950 font-bold text-sm transition self-start md:self-auto">
+              Mulai Kuis Evaluasi
+            </button>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            ${MODULES.map((m) => {
+              const isDone = appState.progress.completedModules.includes(m.id);
+              return `
+                <div class="rounded-2xl bg-navy-900/90 border ${isDone ? 'border-emerald-500/40' : 'border-slate-800'} p-6 flex flex-col justify-between gap-5 hover:border-electric-400/50 transition">
+                  <div class="space-y-2.5">
+                    <div class="flex items-center justify-between">
+                      <span class="text-xs font-mono px-2.5 py-1 rounded bg-navy-950 text-electric-400 border border-electric-500/20">${m.code}</span>
+                      ${isDone ? '<span class="text-xs font-semibold text-emerald-400">✓ Ditandai Selesai</span>' : ''}
+                    </div>
+                    <h2 class="text-xl font-bold text-white">${m.icon} ${m.title}</h2>
+                    <p class="text-sm text-slate-300 leading-relaxed">${m.intro}</p>
+                    <div class="pt-2 flex flex-wrap gap-1.5">
+                      ${m.formulas.map((f) => `<span class="text-xs font-mono px-2.5 py-1 rounded-lg bg-navy-950 text-sky-300 border border-slate-800">${f.eq}</span>`).join('')}
+                    </div>
+                  </div>
+
+                  <div class="flex flex-wrap items-center gap-2.5 pt-3 border-t border-slate-800">
+                    <button onclick="navigateTo('simulation', '${m.id}')" class="px-4 py-2 rounded-xl bg-electric-500 hover:bg-electric-400 text-navy-950 font-bold text-xs sm:text-sm transition">
+                      Buka Materi & Simulasi 3D
+                    </button>
+                    <button onclick="markModuleCompleted('${m.id}')" class="px-3.5 py-2 rounded-xl bg-navy-800 hover:bg-navy-700 text-slate-200 font-semibold text-xs sm:text-sm border border-slate-700 transition">
+                      ${isDone ? 'Sudah Selesai' : 'Tandai Selesai'}
+                    </button>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </section>
+      `;
+    }
+
+    function markModuleCompleted(moduleId) {
+      if (!appState.progress.completedModules.includes(moduleId)) {
+        appState.progress.completedModules.push(moduleId);
+        saveProgress();
+        showToast('Progres modul tersimpan ke penyimpanan lokal!');
+        navigateTo(appState.route, appState.activeModuleId);
+      } else {
+        showToast('Modul ini sudah tercatat selesai.');
+      }
+    }
+
+    /* =========================================================================
+       7. SPLIT VIEW: PANEL KIRI (MATERI & RUMUS) + PANEL KANAN (3D & GRAFIK)
+       ========================================================================= */
+    function renderSplitLabView({ mode }) {
+      const mod = MODULES.find((m) => m.id === appState.activeModuleId) || MODULES[0];
+      const isDone = appState.progress.completedModules.includes(mod.id);
+      const isExperimentMode = mode === 'experiment';
+
+      return `
+        <section class="max-w-[1680px] mx-auto px-3 sm:px-6 py-5 space-y-4">
+          <!-- Module Selector Strip -->
+          <div class="flex items-center justify-between gap-3 flex-wrap bg-navy-900/90 border border-slate-800 rounded-2xl p-3">
+            <div class="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0 max-w-full">
+              ${MODULES.map((m) => {
+                const active = m.id === mod.id;
+                return `
+                  <button onclick="navigateTo('${mode}', '${m.id}')" class="shrink-0 px-3 py-1.5 rounded-xl text-xs font-semibold transition ${
+                    active
+                      ? 'bg-electric-500 text-navy-950 shadow-md shadow-electric-500/25'
+                      : 'bg-navy-950 text-slate-300 hover:text-white border border-slate-800'
+                  }">
+                    ${m.icon} ${m.title}
+                  </button>
+                `;
+              }).join('')}
+            </div>
+
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-mono px-2.5 py-1 rounded-lg ${
+                isExperimentMode
+                  ? 'bg-amber-500/15 text-amber-300 border border-amber-500/30'
+                  : 'bg-electric-500/15 text-electric-400 border border-electric-500/30'
+              }">
+                ${isExperimentMode ? 'EXPERIMENT & CHALLENGE MODE' : '3D SIMULATION LAB'}
+              </span>
+            </div>
+          </div>
+
+          <!-- Two-Column Responsive Layout (Stacked on Mobile, Side-by-Side on Desktop) -->
+          <div class="grid grid-cols-1 xl:grid-cols-12 gap-5 items-start">
+            <!-- LEFT PANEL: Penjelasan Materi, Rumus, Contoh Soal & Rangkuman -->
+            <div class="xl:col-span-5 space-y-4 bg-navy-900/90 border border-slate-800 rounded-2xl p-4 sm:p-6 xl:max-h-[calc(100vh-140px)] xl:overflow-y-auto">
+              <div class="flex items-start justify-between gap-3 border-b border-slate-800 pb-4">
+                <div>
+                  <span class="text-xs font-mono text-electric-400">${mod.code} • KELAS X FASE E</span>
+                  <h1 class="text-xl sm:text-2xl font-extrabold text-white mt-0.5">${mod.icon} ${mod.title}</h1>
+                </div>
+                <button onclick="markModuleCompleted('${mod.id}')" class="shrink-0 px-3 py-1.5 rounded-lg text-xs font-bold transition ${
+                  isDone
+                    ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
+                    : 'bg-navy-800 hover:bg-navy-700 text-slate-200 border border-slate-700'
+                }">
+                  ${isDone ? '✓ Selesai' : 'Tandai Selesai'}
+                </button>
+              </div>
+
+              <!-- 1 & 2. Pengantar & Teori -->
+              <div class="space-y-2">
+                <h2 class="text-sm font-bold uppercase tracking-wider text-electric-400">1–2. Pengantar & Konsep Teori</h2>
+                <p class="text-xs sm:text-sm text-slate-200 leading-relaxed">${mod.intro}</p>
+                <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">${mod.theory}</p>
+              </div>
+
+              <!-- 3 & 4. Rumus & Cara Kerja -->
+              <div class="space-y-2.5 bg-navy-950/90 border border-slate-800 rounded-xl p-4">
+                <h2 class="text-sm font-bold uppercase tracking-wider text-electric-400">3–4. Rumus Fisika & Mekanisme</h2>
+                <div class="space-y-2">
+                  ${mod.formulas.map((f) => `
+                    <div class="p-2.5 rounded-lg bg-navy-900 border border-electric-500/20">
+                      <div class="font-mono text-sm font-bold text-electric-300">${f.eq}</div>
+                      <div class="text-xs text-slate-400 mt-0.5">${f.desc}</div>
+                    </div>
+                  `).join('')}
+                </div>
+                <p class="text-xs text-slate-300 leading-relaxed pt-1"><strong class="text-white">Mengapa demikian?</strong> ${mod.howItWorks}</p>
+              </div>
+
+              <!-- 5. Penerapan Sehari-hari -->
+              <div class="space-y-1.5">
+                <h2 class="text-sm font-bold uppercase tracking-wider text-electric-400">5. Penerapan dalam Kehidupan Sehari-hari</h2>
+                <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">${mod.dailyExample}</p>
+              </div>
+
+              <!-- 7. Contoh Soal & Pembahasan -->
+              <div class="space-y-2 bg-navy-950/80 border border-slate-800 rounded-xl p-4">
+                <h2 class="text-sm font-bold uppercase tracking-wider text-amber-400">7. Contoh Soal & Pembahasan</h2>
+                <p class="text-xs sm:text-sm font-semibold text-white">${mod.sampleProblem.question}</p>
+                <ol class="space-y-1 text-xs text-slate-300 font-mono">
+                  ${mod.sampleProblem.steps.map((step) => `<li>${step}</li>`).join('')}
+                </ol>
+              </div>
+
+              <!-- 8. Rangkuman -->
+              <div class="p-3.5 rounded-xl bg-electric-500/10 border border-electric-400/30">
+                <h2 class="text-xs font-bold uppercase tracking-wider text-electric-400 mb-1">8. Rangkuman Materi</h2>
+                <p class="text-xs sm:text-sm text-slate-200 leading-relaxed">${mod.summary}</p>
+              </div>
+            </div>
+
+            <!-- RIGHT PANEL: Ruang Simulasi 3D Interaktif + Kontrol + Grafik Real-Time -->
+            <div class="xl:col-span-7 space-y-4">
+              <!-- 3D Viewport Card -->
+              <div class="rounded-2xl bg-navy-900 border border-electric-500/30 overflow-hidden electric-glow">
+                <div class="px-4 py-3 bg-navy-800/95 border-b border-slate-700/70 flex flex-wrap items-center justify-between gap-2">
+                  <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-electric-400 animate-pulse"></span>
+                    <span class="text-xs sm:text-sm font-bold text-white">6. Ruang Simulasi 3D: ${mod.title}</span>
+                  </div>
+                  <div class="flex items-center gap-1.5">
+                    <button onclick="cycleCameraPreset()" class="px-2.5 py-1 rounded-lg bg-navy-950 hover:bg-navy-700 text-xs font-mono text-electric-400 border border-slate-700 transition">
+                      Sudut Kamera
+                    </button>
+                    <button onclick="resetCameraView()" class="px-2.5 py-1 rounded-lg bg-navy-950 hover:bg-navy-700 text-xs font-mono text-slate-200 border border-slate-700 transition">
+                      Reset Kamera
+                    </button>
+                  </div>
+                </div>
+
+                <!-- 3D Canvas Container -->
+                <div id="sim-canvas-container" class="w-full h-[340px] sm:h-[420px] bg-navy-950 relative"></div>
+
+                <!-- Simulation Playback & Step Controls -->
+                <div class="px-4 py-3 bg-navy-900/95 border-t border-slate-800 flex flex-wrap items-center justify-between gap-3">
+                  <div class="flex flex-wrap items-center gap-2">
+                    <button id="btn-play-pause" onclick="togglePlayPause()" class="px-4 py-2 rounded-xl bg-electric-500 hover:bg-electric-400 text-navy-950 font-bold text-xs sm:text-sm transition">
+                      ${appState.isPlaying ? 'Pause' : 'Play'}
+                    </button>
+                    <button onclick="stepSimulationOnce()" class="px-3.5 py-2 rounded-xl bg-navy-800 hover:bg-navy-700 text-slate-100 font-semibold text-xs sm:text-sm border border-slate-700 transition">
+                      Step
+                    </button>
+                    <button onclick="resetSimState(true)" class="px-3.5 py-2 rounded-xl bg-navy-800 hover:bg-navy-700 text-amber-300 font-semibold text-xs sm:text-sm border border-slate-700 transition">
+                      Reset
+                    </button>
+                  </div>
+
+                  <div class="text-[11px] sm:text-xs text-slate-400">
+                    Drag: Putar 360° • Scroll/Pinch: Zoom • Klik Kanan/2-Jari: Pan
+                  </div>
+                </div>
+              </div>
+
+              <!-- Challenge Mode Box (Ditampilkan saat Mode Experiment atau pada Gerak Parabola) -->
+              ${(CHALLENGES[mod.id] && (isExperimentMode || mod.id === 'parabola')) ? `
+                <div class="rounded-2xl bg-gradient-to-r from-navy-900 to-navy-800 border border-amber-400/40 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div class="space-y-1">
+                    <div class="text-xs font-mono font-bold text-amber-400 uppercase">Challenge Mode • Target Eksperimen</div>
+                    <p class="text-xs sm:text-sm text-slate-200">${CHALLENGES[mod.id].task} <strong class="text-amber-300 font-mono">${appState.challengeTargetDist} ${CHALLENGES[mod.id].unit}</strong>. Atur slider, lalu tekan Uji.</p>
+                    <div id="challenge-feedback" class="text-xs font-mono text-emerald-300">${appState.challengeStatus || ''}</div>
+                  </div>
+                  <div class="flex items-center gap-2 shrink-0">
+                    <button onclick="newChallengeTarget()" class="px-3 py-2 rounded-xl text-xs font-semibold border border-slate-700  bg-navy-950 hover:bg-navy-800 text-slate-200">Target Baru</button>
+                    <button onclick="evaluateChallenge()" class="px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-navy-950 font-extrabold text-xs sm:text-sm">Uji</button>
+                  </div>
+                </div>
+              ` : ''}
+
+              <!-- Parameter Sliders & Real-Time Physics Readout -->
+              <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+                <!-- Sliders -->
+                <div class="lg:col-span-7 rounded-2xl bg-navy-900/90 border border-slate-800 p-4 space-y-3.5">
+                  <div class="flex items-center justify-between">
+                    <h3 class="text-sm font-bold text-white">Kontrol Parameter Fisika</h3>
+                    <button onclick="restoreDefaultSliders('${mod.id}')" class="text-xs text-electric-400 hover:underline">Default</button>
+                  </div>
+                  ${mod.sliders.map((s) => {
+                    const val = appState.params[s.key];
+                    return `
+                      <div class="space-y-1">
+                        <div class="flex items-center justify-between text-xs">
+                          <label for="slider-${s.key}" class="text-slate-300 font-medium">${s.label}</label>
+                          <span id="val-${s.key}" class="font-mono font-bold text-electric-400">${val} ${s.unit}</span>
+                        </div>
+                        <input
+                          id="slider-${s.key}"
+                          type="range"
+                          min="${s.min}"
+                          max="${s.max}"
+                          step="${s.step}"
+                          value="${val}"
+                          oninput="onSliderChange('${s.key}', this.value, '${s.unit}')"
+                          class="w-full lab-slider"
+                        />
+                      </div>
+                    `;
+                  }).join('')}
+                </div>
+
+                <!-- Live Telemetry & Graph Visualizer -->
+                <div class="lg:col-span-5 rounded-2xl bg-navy-900/90 border border-slate-800 p-4 flex flex-col justify-between gap-3">
+                  <div>
+                    <div class="text-xs font-bold text-white mb-2 flex items-center justify-between">
+                      <span>Pembacaan & Grafik Real-Time</span>
+                      <span class="font-mono text-[11px] text-electric-400" id="live-time-readout">t = 0.00 s</span>
+                    </div>
+                    <div id="live-physics-metrics" class="p-2.5 rounded-xl bg-navy-950 border border-slate-800 font-mono text-xs text-sky-300 space-y-1">
+                      <!-- Diperbarui tiap frame -->
+                    </div>
+                  </div>
+                  <canvas id="telemetry-graph" class="w-full h-32 rounded-xl bg-navy-950 border border-slate-800"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      `;
+    }
+
+    function onSliderChange(key, rawValue, unit) {
+      const num = parseFloat(rawValue);
+      appState.params[key] = num;
+      const labelEl = document.getElementById(`val-${key}`);
+      if (labelEl) labelEl.textContent = `${num} ${unit}`;
+      if (appState.activeModuleId === 'parabola') {
+        updateParabolaTrajectoryLine();
+      } else if (appState.activeModuleId === 'usaha-energi') {
+        resetThreeEntities();
+      }
+    }
+
+    function restoreDefaultSliders(moduleId) {
+      const mod = MODULES.find((m) => m.id === moduleId);
+      if (!mod) return;
+      mod.sliders.forEach((s) => {
+        appState.params[s.key] = s.defaultVal;
+      });
+      navigateTo(appState.route, moduleId);
+      showToast('Parameter dikembalikan ke nilai awal.');
+    }
+
+    function togglePlayPause() {
+      appState.isPlaying = !appState.isPlaying;
+      const btn = document.getElementById('btn-play-pause');
+      if (btn) {
+        btn.textContent = appState.isPlaying ? 'Pause' : 'Play';
+      }
+    }
+
+    function stepSimulationOnce() {
+      appState.isPlaying = false;
+      const btn = document.getElementById('btn-play-pause');
+      if (btn) btn.textContent = 'Play';
+      advancePhysicsStep(0.05);
+      renderTelemetryGraph();
+    }
+
+    function resetSimState(keepPlaying = true) {
+      appState.simTime = 0;
+      appState.telemetryHistory = [];
+      appState.challengeStatus = null;
+      if (keepPlaying) {
+        appState.isPlaying = true;
+        const btn = document.getElementById('btn-play-pause');
+        if (btn) btn.textContent = 'Pause';
+      }
+      if (threeState.scene) {
+        resetThreeEntities();
+      }
+    }
+
+    const CHALLENGES = {
+      'parabola': { min: 10, max: 32, step: 1, unit: 'm', tol: 1.2, task: 'Buat bola jatuh tepat pada jarak', value: (P) => {
+        const r = ((P.launchAngle ?? 45) * Math.PI) / 180;
+        return ((P.launchSpeed ?? 18) ** 2 * Math.sin(2 * r)) / (P.gravity ?? 9.8);
+      } },
+      'vektor': { min: 6, max: 14, step: 1, unit: 'N', tol: 0.3, task: 'Atur vektor A dan B agar besar resultan R =', value: (P) => {
+        const ra = ((P.vecAAngle ?? 25) * Math.PI) / 180, rb = ((P.vecBAngle ?? 110) * Math.PI) / 180;
+        return Math.hypot((P.vecAMag ?? 6) * Math.cos(ra) + (P.vecBMag ?? 5) * Math.cos(rb), (P.vecAMag ?? 6) * Math.sin(ra) + (P.vecBMag ?? 5) * Math.sin(rb));
+      } },
+      'hukum-newton': { min: 1, max: 4, step: 0.5, unit: 'm/s²', tol: 0.15, task: 'Buat balok bergerak dengan percepatan a =', value: (P) => {
+        const m = P.massBlock ?? 5, F = P.pushForce ?? 35, mu = P.frictionCoeff ?? 0.25;
+        return F > mu * 1.2 * m * 9.8 ? (F - mu * m * 9.8) / m : 0;
+      } },
+      'getaran-gelombang': { min: 2, max: 6, step: 0.5, unit: 'm/s', tol: 0.15, task: 'Atur λ dan f agar cepat rambat v =', value: (P) => (P.wavelength ?? 3) * (P.frequency ?? 1.1) }
+    };
+
+    function pickChallengeTarget(moduleId) {
+      const c = CHALLENGES[moduleId];
+      if (!c) return appState.challengeTargetDist;
+      return Math.round((c.min + Math.random() * (c.max - c.min)) / c.step) * c.step;
+    }
+
+    function newChallengeTarget() {
+      navigateTo(appState.route, appState.activeModuleId);
+    }
+
+    function evaluateChallenge() {
+      const id = appState.activeModuleId;
+      const c = CHALLENGES[id];
+      if (!c) return;
+      const val = c.value(appState.params);
+      const target = appState.challengeTargetDist;
+      const diff = Math.abs(val - target);
+      appState.simTime = 0;
+      appState.isPlaying = true;
+      const btn = document.getElementById('btn-play-pause');
+      if (btn) btn.textContent = 'Pause';
+      if (diff <= c.tol) {
+        appState.challengeStatus = `BERHASIL! Hasilmu ${val.toFixed(2)} ${c.unit} sesuai target ${target} ${c.unit}.`;
+        const key = id + ':' + target;
+        if (!appState.progress.challengesSolved.includes(key)) {
+          appState.progress.challengesSolved.push(key);
+          saveProgress();
+        }
+        showToast('Target tantangan berhasil dicapai!');
+      } else {
+        appState.challengeStatus = `Hasilmu ${val.toFixed(2)} ${c.unit} (selisih ${diff.toFixed(2)} dari target ${target}). Coba atur lagi.`;
+      }
+      const el = document.getElementById('challenge-feedback');
+      if (el) el.textContent = appState.challengeStatus;
+    }
+
+    /* =========================================================================
+       8. MESIN SIMULASI 3D INTERAKTIF (THREE.JS) + KONTROL KAMERA 360°
+       ========================================================================= */
+    const threeState = {
+      scene: null,
+      camera: null,
+      renderer: null,
+      animId: null,
+      container: null,
+      entities: {},
+      pointer: {
+        isDown: false,
+        button: 0,
+        lastX: 0,
+        lastY: 0,
+        touches: 0,
+        lastPinchDist: 0,
+        theta: 0.65,
+        phi: 1.05,
+        radius: 22,
+        target: new THREE.Vector3(0, 2, 0)
+      }
+    };
+
+    function destroyThreeScene() {
+      if (threeState.animId) {
+        cancelAnimationFrame(threeState.animId);
+        threeState.animId = null;
+      }
+      window.removeEventListener('resize', handleResize);
+      if (threeState.scene) {
+        threeState.scene.traverse((o) => {
+          if (o.geometry) o.geometry.dispose();
+          if (o.material) [].concat(o.material).forEach((mt) => mt.dispose());
+        });
+      }
+      if (threeState.renderer) {
+        threeState.renderer.dispose();
+        threeState.renderer.forceContextLoss();
+        threeState.renderer = null;
+      }
+      threeState.scene = null;
+      threeState.camera = null;
+      threeState.entities = {};
+    }
+
+    function initHeroMiniPreview() {
+      const container = document.getElementById('hero-3d-preview');
+      if (!container || typeof THREE === 'undefined') return;
+
+      const scene = new THREE.Scene();
+      scene.background = new THREE.Color('#040814');
+
+      const w = container.clientWidth || 400;
+      const h = container.clientHeight || 300;
+      const camera = new THREE.PerspectiveCamera(45, w / h, 0.1, 200);
+      camera.position.set(12, 9, 18);
+      camera.lookAt(5, 3, 0);
+
+      const renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize(w, h);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      container.innerHTML = '';
+      container.appendChild(renderer.domElement);
+
+      scene.add(new THREE.AmbientLight(0x94a3b8, 0.9));
+      const dirLight = new THREE.DirectionalLight(0x38bdf8, 1.3);
+      dirLight.position.set(10, 20, 12);
+      scene.add(dirLight);
+
+      const grid = new THREE.GridHelper(30, 30, 0x0ea5e9, 0x13224a);
+      scene.add(grid);
+
+      // Trajectory arc preview
+      const pts = [];
+      for (let i = 0; i <= 40; i++) {
+        const t = (i / 40) * 2.6;
+        const x = 18 * Math.cos(Math.PI / 4) * t;
+        const y = Math.max(0.3, 18 * Math.sin(Math.PI / 4) * t - 0.5 * 9.8 * t * t);
+        pts.push(new THREE.Vector3(x - 6, y, 0));
+      }
+      const lineGeo = new THREE.BufferGeometry().setFromPoints(pts);
+      const lineMat = new THREE.LineBasicMaterial({ color: 0x38bdf8 });
+      scene.add(new THREE.Line(lineGeo, lineMat));
+
+      const ball = new THREE.Mesh(
+        new THREE.SphereGeometry(0.65, 24, 24),
+        new THREE.MeshStandardMaterial({ color: 0xf97316, emissive: 0x7c2d12, roughness: 0.3 })
+      );
+      scene.add(ball);
+
+      let tAnim = 0;
+      function animatePreview() {
+        threeState.animId = requestAnimationFrame(animatePreview);
+        tAnim = (tAnim + 0.025) % 2.6;
+        const x = 18 * Math.cos(Math.PI / 4) * tAnim - 6;
+        const y = Math.max(0.65, 18 * Math.sin(Math.PI / 4) * tAnim - 0.5 * 9.8 * tAnim * tAnim);
+        ball.position.set(x, y, 0);
+        camera.position.x = Math.cos(Date.now() * 0.0004) * 18;
+        camera.position.z = Math.sin(Date.now() * 0.0004) * 18;
+        camera.lookAt(0, 3, 0);
+        renderer.render(scene, camera);
+      }
+      animatePreview();
+    }
+
+    function mountThreeLab() {
+      const container = document.getElementById('sim-canvas-container');
+      if (!container || typeof THREE === 'undefined') return;
+
+      threeState.container = container;
+      const width = container.clientWidth || 640;
+      const height = container.clientHeight || 400;
+
+      const scene = new THREE.Scene();
+      scene.background = new THREE.Color('#040814');
+      scene.fog = new THREE.FogExp2('#040814', 0.018);
+
+      const camera = new THREE.PerspectiveCamera(48, width / height, 0.1, 250);
+      const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+      renderer.setSize(width, height);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      container.innerHTML = '';
+      container.appendChild(renderer.domElement);
+
+      // Lighting
+      scene.add(new THREE.AmbientLight(0xcbd5e1, 0.85));
+      const keyLight = new THREE.DirectionalLight(0x38bdf8, 1.35);
+      keyLight.position.set(14, 24, 16);
+      scene.add(keyLight);
+      const rimLight = new THREE.DirectionalLight(0xf59e0b, 0.55);
+      rimLight.position.set(-14, 10, -12);
+      scene.add(rimLight);
+
+      // Reference Grid
+      const grid = new THREE.GridHelper(44, 44, 0x0ea5e9, 0x13224a);
+      grid.position.y = 0;
+      scene.add(grid);
+
+      threeState.scene = scene;
+      threeState.camera = camera;
+      threeState.renderer = renderer;
+
+      buildModuleScene(appState.activeModuleId);
+      updateCameraFromSpherical();
+      attachCameraControls(renderer.domElement);
+
+      window.addEventListener('resize', handleResize);
+
+      let lastFrame = performance.now();
+      function loop(now) {
+        threeState.animId = requestAnimationFrame(loop);
+        const dt = Math.min(0.05, (now - lastFrame) / 1000);
+        lastFrame = now;
+
+        if (appState.isPlaying) {
+          advancePhysicsStep(dt);
+        } else {
+          updateVisualsOnly();
+        }
+
+        renderTelemetryGraph();
+        renderer.render(scene, camera);
+      }
+      threeState.animId = requestAnimationFrame(loop);
+    }
+
+    function handleResize() {
+      if (!threeState.container || !threeState.camera || !threeState.renderer) return;
+      const w = threeState.container.clientWidth;
+      const h = threeState.container.clientHeight;
+      if (w > 0 && h > 0) {
+        threeState.camera.aspect = w / h;
+        threeState.camera.updateProjectionMatrix();
+        threeState.renderer.setSize(w, h);
+      }
+    }
+
+    function updateCameraFromSpherical() {
+      const p = threeState.pointer;
+      p.phi = Math.max(0.18, Math.min(Math.PI / 2 - 0.04, p.phi));
+      p.radius = Math.max(5, Math.min(60, p.radius));
+
+      const x = p.target.x + p.radius * Math.sin(p.phi) * Math.sin(p.theta);
+      const y = p.target.y + p.radius * Math.cos(p.phi);
+      const z = p.target.z + p.radius * Math.sin(p.phi) * Math.cos(p.theta);
+
+      if (threeState.camera) {
+        threeState.camera.position.set(x, y, z);
+        threeState.camera.lookAt(p.target);
+      }
+    }
+
+    function resetCameraView() {
+      threeState.pointer.theta = 0.55;
+      threeState.pointer.phi = 1.05;
+      threeState.pointer.radius = 22;
+      threeState.pointer.target.set(0, 2.5, 0);
+      updateCameraFromSpherical();
+      showToast('Posisi kamera direset.');
+    }
+
+    function cycleCameraPreset() {
+      const presets = [
+        { theta: 0.55, phi: 1.05, radius: 22, target: [0, 2.5, 0], name: 'Perspektif 3D' },
+        { theta: 0.0, phi: 1.45, radius: 24, target: [0, 3.0, 0], name: 'Tampak Depan' },
+        { theta: 0.0, phi: 0.25, radius: 22, target: [0, 0.5, 0], name: 'Tampak Atas' }
+      ];
+      appState.cameraPresetIndex = (appState.cameraPresetIndex + 1) % presets.length;
+      const pr = presets[appState.cameraPresetIndex];
+      threeState.pointer.theta = pr.theta;
+      threeState.pointer.phi = pr.phi;
+      threeState.pointer.radius = pr.radius;
+      threeState.pointer.target.set(...pr.target);
+      updateCameraFromSpherical();
+      showToast(`Kamera: ${pr.name}`);
+    }
+
+    function attachCameraControls(dom) {
+      const p = threeState.pointer;
+
+      dom.addEventListener('contextmenu', (e) => e.preventDefault());
+      dom.addEventListener('mouseleave', () => { p.isDown = false; });
+      dom.addEventListener('touchend', (e) => {
+        p.lastPinchDist = 0;
+        p.touches = e.touches.length;
+        if (e.touches.length === 1) { p.lastX = e.touches[0].clientX; p.lastY = e.touches[0].clientY; }
+      });
+
+      dom.addEventListener('mousedown', (e) => {
+        p.isDown = true;
+        p.button = e.button;
+        p.lastX = e.clientX;
+        p.lastY = e.clientY;
+      });
+
+      dom.addEventListener('mouseup', () => {
+        p.isDown = false;
+      });
+
+      dom.addEventListener('mousemove', (e) => {
+        if (!p.isDown) return;
+        const dx = e.clientX - p.lastX;
+        const dy = e.clientY - p.lastY;
+        p.lastX = e.clientX;
+        p.lastY = e.clientY;
+
+        if (p.button === 2 || e.shiftKey) {
+          // Pan kamera
+          const panSpeed = 0.025;
+          p.target.x -= dx * panSpeed * Math.cos(p.theta);
+          p.target.z += dx * panSpeed * Math.sin(p.theta);
+          p.target.y += dy * panSpeed;
+        } else {
+          // Orbit 360 derajat
+          p.theta -= dx * 0.008;
+          p.phi -= dy * 0.008;
+        }
+        updateCameraFromSpherical();
+      });
+
+      dom.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        p.radius += e.deltaY * 0.015;
+        updateCameraFromSpherical();
+      }, { passive: false });
+
+      // Touch controls (1 jari orbit, 2 jari pinch-zoom & pan)
+      dom.addEventListener('touchstart', (e) => {
+        p.touches = e.touches.length;
+        if (e.touches.length === 1) {
+          p.lastX = e.touches[0].clientX;
+          p.lastY = e.touches[0].clientY;
+        } else if (e.touches.length === 2) {
+          const dx = e.touches[0].clientX - e.touches[1].clientX;
+          const dy = e.touches[0].clientY - e.touches[1].clientY;
+          p.lastPinchDist = Math.hypot(dx, dy);
+          p.lastX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+          p.lastY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+        }
+      }, { passive: false });
+
+      dom.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        if (e.touches.length === 1) {
+          const t = e.touches[0];
+          const dx = t.clientX - p.lastX;
+          const dy = t.clientY - p.lastY;
+          p.lastX = t.clientX;
+          p.lastY = t.clientY;
+          p.theta -= dx * 0.009;
+          p.phi -= dy * 0.009;
+          updateCameraFromSpherical();
+        } else if (e.touches.length === 2) {
+          const dx = e.touches[0].clientX - e.touches[1].clientX;
+          const dy = e.touches[0].clientY - e.touches[1].clientY;
+          const dist = Math.hypot(dx, dy);
+          if (p.lastPinchDist > 0) {
+            p.radius += (p.lastPinchDist - dist) * 0.04;
+          }
+          p.lastPinchDist = dist;
+
+          const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+          const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+          p.target.x -= (midX - p.lastX) * 0.02;
+          p.target.y += (midY - p.lastY) * 0.02;
+          p.lastX = midX;
+          p.lastY = midY;
+          updateCameraFromSpherical();
+        }
+      }, { passive: false });
+    }
+
+    /* =========================================================================
+       9. PEMBANGUNAN OBJEK 3D & LOGIKA FISIKA PER MODUL
+       ========================================================================= */
+    function buildModuleScene(moduleId) {
+      const scene = threeState.scene;
+      threeState.entities = {};
+
+      if (moduleId === 'pengukuran') {
+        // Jangka Sorong & Mikrometer Sekrup 3D
+        const ruler = new THREE.Mesh(
+          new THREE.BoxGeometry(14, 1.4, 0.5),
+          new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.7, roughness: 0.25 })
+        );
+        ruler.position.set(0, 3.5, 0);
+        scene.add(ruler);
+
+        const jawFixed = new THREE.Mesh(
+          new THREE.BoxGeometry(1.1, 4.5, 0.5),
+          new THREE.MeshStandardMaterial({ color: 0x64748b, metalness: 0.75, roughness: 0.2 })
+        );
+        jawFixed.position.set(-6.4, 2.0, 0);
+        scene.add(jawFixed);
+
+        const jawSliding = new THREE.Mesh(
+          new THREE.BoxGeometry(1.1, 4.2, 0.65),
+          new THREE.MeshStandardMaterial({ color: 0x0ea5e9, metalness: 0.5, roughness: 0.25 })
+        );
+        jawSliding.position.set(-4.5, 2.15, 0.1);
+        scene.add(jawSliding);
+
+        // Mikrometer Sekrup di bagian bawah
+        const microFrame = new THREE.Mesh(
+          new THREE.TorusGeometry(2.6, 0.35, 16, 40, Math.PI * 1.45),
+          new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.6, roughness: 0.3 })
+        );
+        microFrame.position.set(-1.5, -2.5, 0);
+        microFrame.rotation.z = Math.PI * 0.75;
+        scene.add(microFrame);
+
+        const spindle = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.45, 0.45, 5.5, 24),
+          new THREE.MeshStandardMaterial({ color: 0xfbbf24, metalness: 0.8, roughness: 0.2 })
+        );
+        spindle.rotation.z = Math.PI / 2;
+        spindle.position.set(1.2, -2.5, 0);
+        scene.add(spindle);
+
+        threeState.entities = { jawSliding, spindle };
+      } else if (moduleId === 'vektor') {
+        // Panah Vektor A, Vektor B, dan Resultan R
+        const arrowA = new THREE.ArrowHelper(new THREE.Vector3(1, 0, 0), new THREE.Vector3(0, 0.2, 0), 6, 0x38bdf8, 1.1, 0.7);
+        const arrowB = new THREE.ArrowHelper(new THREE.Vector3(0, 1, 0), new THREE.Vector3(0, 0.2, 0), 5, 0xfbbf24, 1.1, 0.7);
+        const arrowR = new THREE.ArrowHelper(new THREE.Vector3(1, 1, 0).normalize(), new THREE.Vector3(0, 0.2, 0), 7, 0x34d399, 1.3, 0.85);
+        scene.add(arrowA, arrowB, arrowR);
+        threeState.entities = { arrowA, arrowB, arrowR };
+      } else if (moduleId === 'gerak-lurus') {
+        // Lintasan jalan + Mobil 3D
+        const road = new THREE.Mesh(
+          new THREE.BoxGeometry(56, 0.25, 4.2),
+          new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.8 })
+        );
+        road.position.set(14, 0.12, 0);
+        scene.add(road);
+
+        const carGroup = new THREE.Group();
+        const body = new THREE.Mesh(
+          new THREE.BoxGeometry(3.2, 1.1, 1.7),
+          new THREE.MeshStandardMaterial({ color: 0x0ea5e9, metalness: 0.4, roughness: 0.3 })
+        );
+        body.position.y = 1.0;
+        const cabin = new THREE.Mesh(
+          new THREE.BoxGeometry(1.7, 0.8, 1.45),
+          new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.2, roughness: 0.2 })
+        );
+        cabin.position.set(-0.2, 1.85, 0);
+        carGroup.add(body, cabin);
+
+        const wheelGeo = new THREE.CylinderGeometry(0.45, 0.45, 0.3, 20);
+        wheelGeo.rotateX(Math.PI / 2);
+        const wheelMat = new THREE.MeshStandardMaterial({ color: 0x1e293b });
+        [[-1.05, 0.45, 0.9], [1.05, 0.45, 0.9], [-1.05, 0.45, -0.9], [1.05, 0.45, -0.9]].forEach(([wx, wy, wz]) => {
+          const w = new THREE.Mesh(wheelGeo, wheelMat);
+          w.position.set(wx, wy, wz);
+          carGroup.add(w);
+        });
+
+        carGroup.position.set(-10, 0.25, 0);
+        scene.add(carGroup);
+        threeState.entities = { carGroup };
+      } else if (moduleId === 'parabola') {
+        // Bola + Lintasan parabola + Marker target tantangan
+        const ball = new THREE.Mesh(
+          new THREE.SphereGeometry(0.6, 24, 24),
+          new THREE.MeshStandardMaterial({ color: 0xf97316, emissive: 0x7c2d12, roughness: 0.3 })
+        );
+        ball.position.set(-10, 0.6, 0);
+        scene.add(ball);
+
+        const targetRing = new THREE.Mesh(
+          new THREE.TorusGeometry(1.1, 0.16, 12, 32),
+          new THREE.MeshStandardMaterial({ color: 0xef4444, emissive: 0x991b1b })
+        );
+        targetRing.rotation.x = Math.PI / 2;
+        targetRing.position.set(-10 + appState.challengeTargetDist * 0.8, 0.15, 0);
+        scene.add(targetRing);
+
+        const trajLine = new THREE.Line(
+          new THREE.BufferGeometry(),
+          new THREE.LineBasicMaterial({ color: 0x38bdf8 })
+        );
+        scene.add(trajLine);
+
+        threeState.entities = { ball, trajLine, targetRing };
+        updateParabolaTrajectoryLine();
+      } else if (moduleId === 'hukum-newton') {
+        // Permukaan + Balok + Panah Gaya Dorong & Gesek
+        const floor = new THREE.Mesh(
+          new THREE.BoxGeometry(42, 0.4, 6),
+          new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.7 })
+        );
+        floor.position.set(2, 0.2, 0);
+        scene.add(floor);
+
+        const block = new THREE.Mesh(
+          new THREE.BoxGeometry(2.2, 2.2, 2.2),
+          new THREE.MeshStandardMaterial({ color: 0x38bdf8, metalness: 0.3, roughness: 0.35 })
+        );
+        block.position.set(-6, 1.5, 0);
+        scene.add(block);
+
+        const pushArrow = new THREE.ArrowHelper(new THREE.Vector3(1, 0, 0), new THREE.Vector3(-4.8, 1.5, 0), 4, 0x22c55e, 0.8, 0.5);
+        const fricArrow = new THREE.ArrowHelper(new THREE.Vector3(-1, 0, 0), new THREE.Vector3(-7.2, 0.8, 0), 2.5, 0xef4444, 0.7, 0.45);
+        scene.add(pushArrow, fricArrow);
+
+        threeState.entities = { block, pushArrow, fricArrow };
+      } else if (moduleId === 'usaha-energi') {
+        // Lintasan turun + Kereta/Bola energi
+        const h = appState.params.startHeight || 16;
+        const pts = [
+          new THREE.Vector3(-10, h * 0.65, 0),
+          new THREE.Vector3(-2, h * 0.35, 0),
+          new THREE.Vector3(6, 0.5, 0),
+          new THREE.Vector3(14, h * 0.45, 0)
+        ];
+        const curve = new THREE.CatmullRomCurve3(pts);
+        const trackMesh = new THREE.Mesh(
+          new THREE.TubeGeometry(curve, 64, 0.16, 12, false),
+          new THREE.MeshStandardMaterial({ color: 0x0ea5e9, metalness: 0.5, roughness: 0.3 })
+        );
+        scene.add(trackMesh);
+
+        const cart = new THREE.Mesh(
+          new THREE.SphereGeometry(0.75, 24, 24),
+          new THREE.MeshStandardMaterial({ color: 0xfbbf24, emissive: 0x78350f, roughness: 0.25 })
+        );
+        scene.add(cart);
+        threeState.entities = { cart, curve, hBuilt: h };
+      } else if (moduleId === 'momentum-impuls') {
+        // Dua bola bertumbukan 1D
+        const rail = new THREE.Mesh(
+          new THREE.BoxGeometry(34, 0.25, 3),
+          new THREE.MeshStandardMaterial({ color: 0x0f172a })
+        );
+        rail.position.set(0, 0.12, 0);
+        scene.add(rail);
+
+        const ball1 = new THREE.Mesh(
+          new THREE.SphereGeometry(0.95, 24, 24),
+          new THREE.MeshStandardMaterial({ color: 0x38bdf8, roughness: 0.3 })
+        );
+        ball1.position.set(-7, 1.2, 0);
+
+        const ball2 = new THREE.Mesh(
+          new THREE.SphereGeometry(0.95, 24, 24),
+          new THREE.MeshStandardMaterial({ color: 0xf97316, roughness: 0.3 })
+        );
+        ball2.position.set(5, 1.2, 0);
+
+        scene.add(ball1, ball2);
+        threeState.entities = { ball1, ball2 };
+      } else if (moduleId === 'getaran-gelombang') {
+        // Pegas osilasi kiri + Gelombang tali/permukaan kanan
+        const anchor = new THREE.Mesh(
+          new THREE.BoxGeometry(0.5, 4, 0.5),
+          new THREE.MeshStandardMaterial({ color: 0x64748b })
+        );
+        anchor.position.set(-10, 2.5, 0);
+        scene.add(anchor);
+
+        const massBob = new THREE.Mesh(
+          new THREE.BoxGeometry(1.5, 1.5, 1.5),
+          new THREE.MeshStandardMaterial({ color: 0xfbbf24, roughness: 0.3 })
+        );
+        massBob.position.set(-6, 2.5, 0);
+        scene.add(massBob);
+
+        const springLine = new THREE.Line(
+          new THREE.BufferGeometry(),
+          new THREE.LineBasicMaterial({ color: 0x94a3b8 })
+        );
+        scene.add(springLine);
+
+        // Gelombang transversal (baris titik/bola)
+        const waveDots = [];
+        const dotGeo = new THREE.SphereGeometry(0.24, 14, 14);
+        const dotMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, emissive: 0x0369a1 });
+        for (let i = 0; i < 36; i++) {
+          const dot = new THREE.Mesh(dotGeo, dotMat);
+          dot.position.set(-2 + i * 0.45, 2.5, 0);
+          scene.add(dot);
+          waveDots.push(dot);
+        }
+
+        threeState.entities = { massBob, springLine, waveDots };
+      }
+    }
+
+    function resetThreeEntities() {
+      if (!threeState.scene) return;
+      while (threeState.scene.children.length > 0) {
+        const ch = threeState.scene.children[0];
+        ch.traverse((o) => {
+          if (o.geometry) o.geometry.dispose();
+          if (o.material) [].concat(o.material).forEach((mt) => mt.dispose());
+        });
+        threeState.scene.remove(ch);
+      }
+      const rim = new THREE.DirectionalLight(0xf59e0b, 0.55);
+      rim.position.set(-14, 10, -12);
+      threeState.scene.add(rim);
+      threeState.scene.add(new THREE.AmbientLight(0xcbd5e1, 0.85));
+      const keyLight = new THREE.DirectionalLight(0x38bdf8, 1.35);
+      keyLight.position.set(14, 24, 16);
+      threeState.scene.add(keyLight);
+      threeState.scene.add(new THREE.GridHelper(44, 44, 0x0ea5e9, 0x13224a));
+      buildModuleScene(appState.activeModuleId);
+    }
+
+    function updateParabolaTrajectoryLine() {
+      const ent = threeState.entities;
+      if (!ent || !ent.trajLine) return;
+      const v0 = appState.params.launchSpeed || 18;
+      const deg = appState.params.launchAngle || 45;
+      const g = appState.params.gravity || 9.8;
+      const rad = (deg * Math.PI) / 180;
+      const flightTime = (2 * v0 * Math.sin(rad)) / Math.max(0.5, g);
+
+      const pts = [];
+      for (let i = 0; i <= 50; i++) {
+        const t = (i / 50) * flightTime;
+        const x = -10 + v0 * Math.cos(rad) * t * 0.8;
+        const y = Math.max(0.6, 0.6 + (v0 * Math.sin(rad) * t - 0.5 * g * t * t) * 0.8);
+        pts.push(new THREE.Vector3(x, y, 0));
+      }
+      ent.trajLine.geometry.dispose();
+      ent.trajLine.geometry = new THREE.BufferGeometry().setFromPoints(pts);
+    }
+
+    function advancePhysicsStep(dt) {
+      appState.simTime += dt;
+      appState.progress.totalSimTimeSec += dt;
+      updateVisualsOnly();
+    }
+
+    function updateVisualsOnly() {
+      const modId = appState.activeModuleId;
+      const t = appState.simTime;
+      const ent = threeState.entities;
+      const metricsEl = document.getElementById('live-physics-metrics');
+      const timeEl = document.getElementById('live-time-readout');
+      if (timeEl) timeEl.textContent = `t = ${t.toFixed(2)} s`;
+
+      let yMetric1 = 0;
+      let yMetric2 = 0;
+
+      if (modId === 'pengukuran') {
+        const calPos = appState.params.caliperPos ?? 18.4;
+        const micPos = appState.params.micrometerPos ?? 7.35;
+        if (ent.jawSliding) {
+          ent.jawSliding.position.x = -5.8 + (calPos / 50) * 9.5;
+        }
+        if (ent.spindle) {
+          ent.spindle.position.x = 0.8 + (micPos / 20) * 3.2;
+        }
+        const su = Math.floor(calPos);
+        const sn = Math.round((calPos - su) * 10);
+        yMetric1 = calPos;
+        yMetric2 = micPos;
+        if (metricsEl) {
+          metricsEl.innerHTML = `
+            <div>Jangka Sorong: <strong>${calPos.toFixed(1)} mm</strong> (SU: ${su} mm, Nonius: ${sn})</div>
+            <div>Mikrometer: <strong>${micPos.toFixed(2)} mm</strong> (± 0,01 mm)</div>
+          `;
+        }
+      } else if (modId === 'vektor') {
+        const aMag = appState.params.vecAMag ?? 6;
+        const aRad = ((appState.params.vecAAngle ?? 25) * Math.PI) / 180;
+        const bMag = appState.params.vecBMag ?? 5;
+        const bRad = ((appState.params.vecBAngle ?? 110) * Math.PI) / 180;
+
+        const rx = aMag * Math.cos(aRad) + bMag * Math.cos(bRad);
+        const ry = aMag * Math.sin(aRad) + bMag * Math.sin(bRad);
+        const rMag = Math.hypot(rx, ry);
+        const rAngleDeg = ((Math.atan2(ry, rx) * 180) / Math.PI + 360) % 360;
+
+        if (ent.arrowA && ent.arrowB && ent.arrowR) {
+          ent.arrowA.setDirection(new THREE.Vector3(Math.cos(aRad), Math.sin(aRad), 0).normalize());
+          ent.arrowA.setLength(Math.max(0.5, aMag * 0.85), 0.9, 0.6);
+
+          ent.arrowB.setDirection(new THREE.Vector3(Math.cos(bRad), Math.sin(bRad), 0).normalize());
+          ent.arrowB.setLength(Math.max(0.5, bMag * 0.85), 0.9, 0.6);
+
+          if (rMag > 0.05) {
+            ent.arrowR.visible = true;
+            ent.arrowR.setDirection(new THREE.Vector3(rx / rMag, ry / rMag, 0).normalize());
+            ent.arrowR.setLength(Math.max(0.6, rMag * 0.85), 1.0, 0.7);
+          } else {
+            ent.arrowR.visible = false;
+          }
+        }
+        yMetric1 = rMag;
+        yMetric2 = rx;
+        if (metricsEl) {
+          metricsEl.innerHTML = `
+            <div>Resultan R: <strong>${rMag.toFixed(2)} N</strong> pada sudut <strong>${rAngleDeg.toFixed(1)}°</strong></div>
+            <div>Komponen: Rx = ${rx.toFixed(2)} N | Ry = ${ry.toFixed(2)} N</div>
+          `;
+        }
+      } else if (modId === 'gerak-lurus') {
+        const v0 = appState.params.v0 ?? 5;
+        const a = appState.params.accel ?? 2;
+        const vNow = v0 + a * t;
+        const disp = v0 * t + 0.5 * a * t * t;
+        if (ent.carGroup) {
+          ent.carGroup.position.x = -10 + Math.max(-4, Math.min(26, disp * 0.6));
+        }
+        yMetric1 = disp;
+        yMetric2 = vNow;
+        if (metricsEl) {
+          metricsEl.innerHTML = `
+            <div>Kecepatan v(t): <strong>${vNow.toFixed(2)} m/s</strong> (v₀=${v0}, a=${a})</div>
+            <div>Perpindahan Δx: <strong>${disp.toFixed(2)} m</strong></div>
+          `;
+        }
+      } else if (modId === 'parabola') {
+        const v0 = appState.params.launchSpeed ?? 18;
+        const deg = appState.params.launchAngle ?? 45;
+        const g = appState.params.gravity ?? 9.8;
+        const rad = (deg * Math.PI) / 180;
+        const vx = v0 * Math.cos(rad);
+        const vy = v0 * Math.sin(rad) - g * t;
+        const xPos = vx * t;
+        const yPos = Math.max(0, v0 * Math.sin(rad) * t - 0.5 * g * t * t);
+
+        if (ent.ball) {
+          ent.ball.position.set(-10 + xPos * 0.8, 0.6 + yPos * 0.8, 0);
+        }
+        yMetric1 = yPos;
+        yMetric2 = xPos;
+        if (metricsEl) {
+          metricsEl.innerHTML = `
+            <div>Posisi: x = <strong>${xPos.toFixed(2)} m</strong> | y = <strong>${yPos.toFixed(2)} m</strong></div>
+            <div>Kecepatan: vx = ${vx.toFixed(2)} m/s | vy = ${vy.toFixed(2)} m/s</div>
+          `;
+        }
+      } else if (modId === 'hukum-newton') {
+        const m = appState.params.massBlock ?? 5;
+        const fPush = appState.params.pushForce ?? 35;
+        const mu = appState.params.frictionCoeff ?? 0.25;
+        const g = 9.8;
+        const fMax = mu * 1.2 * m * g; // gesek statis maksimum (μs = 1,2·μk)
+        const moving = fPush > fMax;
+        const fk = moving ? mu * m * g : Math.min(fPush, fMax);
+        const netF = moving ? fPush - fk : 0;
+        const acc = netF / m;
+        const disp = 0.5 * acc * t * t;
+
+        if (ent.block && ent.pushArrow && ent.fricArrow) {
+          const bx = -6 + Math.min(18, disp * 0.5);
+          ent.block.position.x = bx;
+          ent.pushArrow.position.set(bx + 1.2, 1.5, 0);
+          ent.pushArrow.setLength(Math.max(0.5, fPush * 0.05), 0.7, 0.45);
+          ent.fricArrow.position.set(bx - 1.2, 0.8, 0);
+          ent.fricArrow.setLength(Math.max(0.4, fk * 0.05), 0.6, 0.4);
+        }
+        yMetric1 = acc;
+        yMetric2 = netF;
+        if (metricsEl) {
+          metricsEl.innerHTML = `
+            <div>Percepatan a: <strong>${acc.toFixed(2)} m/s²</strong> (ΣF = ${netF.toFixed(1)} N)</div>
+            <div>Gaya Gesek ${moving ? 'kinetik' : 'statis'}: <strong>${fk.toFixed(2)} N</strong> | Posisi: ${disp.toFixed(2)} m</div>
+          `;
+        }
+      } else if (modId === 'usaha-energi') {
+        const m = appState.params.coasterMass ?? 4;
+        const hStart = appState.params.startHeight ?? 16;
+        const g = 9.8;
+        const u = (t * 0.35) % 1;
+        if (ent.cart && ent.curve) {
+          const pt = ent.curve.getPointAt(u);
+          ent.cart.position.copy(pt);
+          const hNow = Math.max(0.2, (pt.y / (0.65 * (ent.hBuilt || hStart))) * hStart);
+          const ep = m * g * hNow;
+          const em = m * g * hStart;
+          const ek = Math.max(0, em - ep);
+          yMetric1 = ep;
+          yMetric2 = ek;
+          if (metricsEl) {
+            metricsEl.innerHTML = `
+              <div>Ep: <strong class="text-sky-300">${ep.toFixed(1)} J</strong> | Ek: <strong class="text-amber-300">${ek.toFixed(1)} J</strong></div>
+              <div>Energi Mekanik Total Em: <strong>${em.toFixed(1)} J</strong> (h ≈ ${hNow.toFixed(1)} m)</div>
+            `;
+          }
+        }
+      } else if (modId === 'momentum-impuls') {
+        const m1 = appState.params.m1 ?? 4;
+        const v1 = appState.params.v1 ?? 6;
+        const m2 = appState.params.m2 ?? 4;
+        const v2 = appState.params.v2 ?? -3;
+        const e = appState.params.restitution ?? 1;
+
+        const tHit = v1 > v2 ? (10 - 1.9) / ((v1 - v2) * 0.45) : Infinity;
+        const v1After = ((m1 - e * m2) * v1 + (1 + e) * m2 * v2) / (m1 + m2);
+        const v2After = ((m2 - e * m1) * v2 + (1 + e) * m1 * v1) / (m1 + m2);
+
+        let x1, x2, curV1, curV2;
+        if (t < tHit) {
+          x1 = -5 + v1 * t * 0.45;
+          x2 = 5 + v2 * t * 0.45;
+          curV1 = v1;
+          curV2 = v2;
+        } else {
+          const xHit1 = -5 + v1 * tHit * 0.45;
+          const xHit2 = 5 + v2 * tHit * 0.45;
+          const dtAfter = t - tHit;
+          x1 = xHit1 + v1After * dtAfter * 0.45;
+          x2 = xHit2 + v2After * dtAfter * 0.45;
+          curV1 = v1After;
+          curV2 = v2After;
+        }
+
+        if (ent.ball1 && ent.ball2) {
+          ent.ball1.position.x = Math.max(-14, Math.min(14, x1));
+          ent.ball2.position.x = Math.max(-14, Math.min(14, x2));
+        }
+
+        const pTotal = m1 * curV1 + m2 * curV2;
+        yMetric1 = m1 * curV1;
+        yMetric2 = m2 * curV2;
+        if (metricsEl) {
+          metricsEl.innerHTML = `
+            <div>p1 = ${(m1 * curV1).toFixed(1)} kg·m/s | p2 = ${(m2 * curV2).toFixed(1)} kg·m/s</div>
+            <div>Momentum Total: <strong>${pTotal.toFixed(1)} kg·m/s</strong> (v1=${curV1.toFixed(1)}, v2=${curV2.toFixed(1)} m/s)</div>
+          `;
+        }
+      } else if (modId === 'getaran-gelombang') {
+        const amp = appState.params.amplitude ?? 1.2;
+        const freq = appState.params.frequency ?? 1.1;
+        const lamb = appState.params.wavelength ?? 3.0;
+        const omega = 2 * Math.PI * freq;
+        const k = (2 * Math.PI) / lamb;
+        const vel = lamb * freq;
+
+        const bobX = -6 + amp * 1.4 * Math.cos(omega * t);
+        if (ent.massBob) {
+          ent.massBob.position.x = bobX;
+        }
+        if (ent.springLine) {
+          const sPts = [];
+          const coils = 16;
+          for (let i = 0; i <= coils; i++) {
+            const frac = i / coils;
+            const sx = -10 + frac * (bobX - 0.75 - (-10));
+            const sy = 2.5 + (i === 0 || i === coils ? 0 : Math.sin(frac * Math.PI * 10) * 0.35);
+            sPts.push(new THREE.Vector3(sx, sy, 0));
+          }
+          ent.springLine.geometry.dispose();
+          ent.springLine.geometry = new THREE.BufferGeometry().setFromPoints(sPts);
+        }
+
+        if (ent.waveDots) {
+          ent.waveDots.forEach((dot, idx) => {
+            const xWorld = dot.position.x;
+            const yWave = 2.5 + amp * 0.85 * Math.sin(k * xWorld - omega * t);
+            dot.position.y = yWave;
+          });
+        }
+
+        const curDisp = amp * Math.sin(omega * t);
+        yMetric1 = curDisp;
+        yMetric2 = vel;
+        if (metricsEl) {
+          metricsEl.innerHTML = `
+            <div>Cepat Rambat v = λ·f: <strong>${vel.toFixed(2)} m/s</strong> (T = ${(1/freq).toFixed(2)} s)</div>
+            <div>Simpangan y(t): <strong>${curDisp.toFixed(2)} m</strong> | A = ${amp} m, f = ${freq} Hz</div>
+          `;
+        }
+      }
+
+      if (appState.isPlaying) {
+        appState.telemetryHistory.push({ t, m1: yMetric1, m2: yMetric2 });
+        if (appState.telemetryHistory.length > 90) {
+          appState.telemetryHistory.shift();
+        }
+      }
+    }
+
+    function renderTelemetryGraph() {
+      const canvas = document.getElementById('telemetry-graph');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const w = canvas.clientWidth || 300;
+      const h = canvas.clientHeight || 120;
+      if (canvas.width !== w) canvas.width = w;
+      if (canvas.height !== h) canvas.height = h;
+
+      ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = '#040814';
+      ctx.fillRect(0, 0, w, h);
+
+      // Center axis
+      ctx.strokeStyle = 'rgba(148, 163, 184, 0.16)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(0, h / 2);
+      ctx.lineTo(w, h / 2);
+      ctx.stroke();
+
+      const data = appState.telemetryHistory;
+      if (data.length < 2) return;
+
+      const maxAbs = Math.max(
+        1,
+        ...data.map((d) => Math.max(Math.abs(d.m1), Math.abs(d.m2)))
+      );
+
+      const drawSeries = (key, color) => {
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        data.forEach((pt, i) => {
+          const px = (i / (data.length - 1)) * (w - 16) + 8;
+          const py = h / 2 - (pt[key] / maxAbs) * (h * 0.38);
+          if (i === 0) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
+        });
+        ctx.stroke();
+      };
+
+      drawSeries('m1', '#38bdf8');
+      drawSeries('m2', '#fbbf24');
+
+      const LBL = {
+        'pengukuran': ['Jangka sorong (mm)', 'Mikrometer (mm)'],
+        'vektor': ['R (N)', 'Rx (N)'],
+        'gerak-lurus': ['Δx (m)', 'v (m/s)'],
+        'parabola': ['y (m)', 'x (m)'],
+        'hukum-newton': ['a (m/s²)', 'ΣF (N)'],
+        'usaha-energi': ['Ep (J)', 'Ek (J)'],
+        'momentum-impuls': ['p₁ (kg·m/s)', 'p₂ (kg·m/s)'],
+        'getaran-gelombang': ['y (m)', 'v (m/s)']
+      }[appState.activeModuleId] || ['m1', 'm2'];
+      ctx.font = '10px JetBrains Mono, monospace';
+      ctx.fillStyle = '#38bdf8'; ctx.fillText('— ' + LBL[0], 8, 12);
+      ctx.fillStyle = '#fbbf24'; ctx.fillText('— ' + LBL[1], 8, 24);
+      ctx.fillStyle = 'rgba(148,163,184,0.8)';
+      ctx.fillText('±' + maxAbs.toFixed(1), w - 52, 12);
+      ctx.fillText('t → ' + data[data.length - 1].t.toFixed(1) + ' s', w - 76, h - 6);
+    }
+
+    /* =========================================================================
+       10. HALAMAN KUIS INTERAKTIF
+       ========================================================================= */
+    function renderQuizView() {
+      if (appState.quizFinished) {
+        const correctCount = appState.quizAnswers.filter((a) => a.isCorrect).length;
+        const score = Math.round((correctCount / QUIZ_BANK.length) * 100);
+
+        return `
+          <section class="max-w-3xl mx-auto px-4 sm:px-6 py-10 space-y-6">
+            <div class="rounded-2xl bg-navy-900 border border-electric-500/30 p-6 sm:p-8 text-center space-y-4 electric-glow">
+              <div class="text-xs font-mono uppercase tracking-widest text-electric-400">Hasil Evaluasi Kuis</div>
+              <div class="text-5xl font-extrabold font-mono text-white">${score}</div>
+              <p class="text-sm sm:text-base text-slate-300">
+                Kamu menjawab benar <strong class="text-emerald-400">${correctCount}</strong> dari <strong class="text-white">${QUIZ_BANK.length}</strong> soal Fisika Kelas X.
+              </p>
+              <div class="pt-2 flex flex-wrap justify-center gap-3">
+                <button onclick="restartQuiz()" class="px-5 py-2.5 rounded-xl bg-electric-500 hover:bg-electric-400 text-navy-950 font-bold text-sm transition">
+                  Ulangi Kuis
+                </button>
+                <button onclick="navigateTo('progress')" class="px-5 py-2.5 rounded-xl bg-navy-800 hover:bg-navy-700 text-slate-100 font-semibold text-sm border border-slate-700 transition">
+                  Lihat Progres Belajar
+                </button>
+              </div>
+            </div>
+
+            <div class="space-y-3">
+              <h2 class="text-lg font-bold text-white">Pembahasan Jawaban</h2>
+              ${QUIZ_BANK.map((item, idx) => {
+                const ans = appState.quizAnswers[idx];
+                return `
+                  <div class="rounded-xl bg-navy-900/90 border ${ans && ans.isCorrect ? 'border-emerald-500/40' : 'border-rose-500/40'} p-4 space-y-1.5">
+                    <div class="text-xs font-mono text-slate-400">Soal ${idx + 1} • ${ans && ans.isCorrect ? '<span class="text-emerald-400">Benar</span>' : '<span class="text-rose-400">Perlu Diulas</span>'}</div>
+                    <p class="text-sm font-semibold text-white">${item.q}</p>
+                    <p class="text-xs text-sky-300 font-mono">Jawaban benar: ${item.options[item.correct]}</p>
+                    <p class="text-xs text-slate-300 leading-relaxed">${item.explain}</p>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </section>
+        `;
+      }
+
+      const item = QUIZ_BANK[appState.quizIndex];
+      const hasAnswered = appState.quizSelected !== null;
+
+      return `
+        <section class="max-w-3xl mx-auto px-4 sm:px-6 py-10">
+          <div class="rounded-2xl bg-navy-900/95 border border-slate-800 p-5 sm:p-7 space-y-6">
+            <div class="flex items-center justify-between text-xs font-mono text-slate-400">
+              <span>SOAL ${appState.quizIndex + 1} / ${QUIZ_BANK.length}</span>
+              <span class="text-electric-400 uppercase">${item.moduleId}</span>
+            </div>
+
+            <h1 class="text-lg sm:text-xl font-bold text-white leading-snug">${item.q}</h1>
+
+            <div class="space-y-2.5">
+              ${item.options.map((opt, idx) => {
+                let cls = 'bg-navy-950 hover:bg-navy-800 border-slate-800 text-slate-200';
+                if (hasAnswered) {
+                  if (idx === item.correct) {
+                    cls = 'bg-emerald-500/20 border-emerald-400 text-emerald-200 font-semibold';
+                  } else if (idx === appState.quizSelected) {
+                    cls = 'bg-rose-500/20 border-rose-400 text-rose-200';
+                  }
+                }
+                return `
+                  <button onclick="selectQuizOption(${idx})" ${hasAnswered ? 'disabled' : ''} class="w-full text-left px-4 py-3 rounded-xl border text-sm transition flex items-center justify-between ${cls}">
+                    <span>${opt}</span>
+                    <span class="font-mono text-xs">${['A', 'B', 'C', 'D'][idx]}</span>
+                  </button>
+                `;
+              }).join('')}
+            </div>
+
+            ${hasAnswered ? `
+              <div class="p-4 rounded-xl bg-navy-950 border border-electric-500/30 text-xs sm:text-sm text-slate-200 space-y-2">
+                <div class="font-bold text-electric-400">Pembahasan:</div>
+                <p>${item.explain}</p>
+              </div>
+              <div class="flex justify-end">
+                <button onclick="nextQuizQuestion()" class="px-5 py-2.5 rounded-xl bg-electric-500 hover:bg-electric-400 text-navy-950 font-bold text-sm transition">
+                  ${appState.quizIndex + 1 < QUIZ_BANK.length ? 'Soal Berikutnya →' : 'Selesaikan Kuis'}
+                </button>
+              </div>
+            ` : ''}
+          </div>
+        </section>
+      `;
+    }
+
+    function selectQuizOption(idx) {
+      if (appState.quizSelected !== null) return;
+      appState.quizSelected = idx;
+      const item = QUIZ_BANK[appState.quizIndex];
+      appState.quizAnswers[appState.quizIndex] = {
+        selected: idx,
+        isCorrect: idx === item.correct
+      };
+      navigateTo('quiz');
+    }
+
+    function nextQuizQuestion() {
+      appState.quizSelected = null;
+      window.scrollTo(0, 0);
+      if (appState.quizIndex + 1 < QUIZ_BANK.length) {
+        appState.quizIndex += 1;
+      } else {
+        appState.quizFinished = true;
+        const cc = appState.quizAnswers.filter((a) => a && a.isCorrect).length;
+        appState.progress.quizScores['utama'] = { score: Math.round((cc / QUIZ_BANK.length) * 100), correctCount: cc, total: QUIZ_BANK.length };
+        saveProgress();
+      }
+      navigateTo('quiz');
+    }
+
+    function restartQuiz() {
+      QUIZ_BANK.sort(() => Math.random() - 0.5);
+      appState.quizIndex = 0;
+      appState.quizSelected = null;
+      appState.quizAnswers = [];
+      appState.quizFinished = false;
+      navigateTo('quiz');
+    }
+
+    /* =========================================================================
+       11. HALAMAN LEARNING PROGRESS (LOCAL STORAGE)
+       ========================================================================= */
+    function renderProgressView() {
+      const doneCount = appState.progress.completedModules.length;
+      const pct = Math.round((doneCount / MODULES.length) * 100);
+      const quizInfo = appState.progress.quizScores['utama'];
+
+      return `
+        <section class="max-w-5xl mx-auto px-4 sm:px-6 py-10 space-y-6">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <span class="text-xs font-mono text-electric-400 uppercase tracking-wider">Penyimpanan Lokal Perangkat</span>
+              <h1 class="text-2xl sm:text-3xl font-extrabold text-white mt-1">Progres Belajar Kamu</h1>
+            </div>
+            <button onclick="resetAllProgress()" class="px-4 py-2 rounded-xl bg-navy-900 hover:bg-rose-950/60 text-rose-300 border border-rose-500/30 text-xs font-semibold transition self-start sm:self-auto">
+              Reset Progres
+            </button>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="rounded-2xl bg-navy-900 border border-slate-800 p-5">
+              <div class="text-xs text-slate-400">Penyelesaian Modul</div>
+              <div class="text-3xl font-extrabold font-mono text-electric-400 mt-1">${pct}%</div>
+              <div class="text-xs text-slate-400 mt-1">${doneCount} dari ${MODULES.length} materi selesai</div>
+            </div>
+            <div class="rounded-2xl bg-navy-900 border border-slate-800 p-5">
+              <div class="text-xs text-slate-400">Nilai Kuis Terakhir</div>
+              <div class="text-3xl font-extrabold font-mono text-emerald-400 mt-1">${quizInfo ? quizInfo.score : '-'}</div>
+              <div class="text-xs text-slate-400 mt-1">${quizInfo ? `${quizInfo.correctCount}/${quizInfo.total} jawaban benar` : 'Belum mengerjakan kuis'}</div>
+            </div>
+            <div class="rounded-2xl bg-navy-900 border border-slate-800 p-5">
+              <div class="text-xs text-slate-400">Tantangan Target Selesai</div>
+              <div class="text-3xl font-extrabold font-mono text-amber-400 mt-1">${appState.progress.challengesSolved.length}</div>
+              <div class="text-xs text-slate-400 mt-1">Waktu simulasi: ${Math.round(appState.progress.totalSimTimeSec)} dtk</div>
+            </div>
+          </div>
+
+          <div class="rounded-2xl bg-navy-900 border border-slate-800 p-5 space-y-3">
+            <h2 class="text-base font-bold text-white">Status Tiap Modul</h2>
+            <div class="divide-y divide-slate-800">
+              ${MODULES.map((m) => {
+                const done = appState.progress.completedModules.includes(m.id);
+                return `
+                  <div class="py-3 flex items-center justify-between gap-3">
+                    <div>
+                      <div class="text-sm font-semibold text-white">${m.icon} ${m.title}</div>
+                      <div class="text-xs text-slate-400">${m.code}</div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <span class="text-xs font-mono px-2.5 py-1 rounded-full ${
+                        done ? 'bg-emerald-500/15 text-emerald-400' : 'bg-navy-950 text-slate-400'
+                      }">${done ? 'Selesai' : 'Belum'}</span>
+                      <button onclick="navigateTo('simulation', '${m.id}')" class="text-xs font-semibold text-electric-400 hover:underline">Buka</button>
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        </section>
+      `;
+    }
+
+    function resetAllProgress() {
+      appState.progress = {
+        completedModules: [],
+        quizScores: {},
+        challengesSolved: [],
+        totalSimTimeSec: 0
+      };
+      saveProgress();
+      showToast('Seluruh progres belajar telah direset.');
+      navigateTo('progress');
+    }
+
+    /* =========================================================================
+       12. MODAL KALKULATOR RUMUS & ILMIAH + KONVERSI SATUAN
+       ========================================================================= */
+    function openToolModal(tab = 'calc') {
+      document.getElementById('tool-modal').classList.remove('hidden');
+      switchToolTab(tab);
+    }
+
+    function closeToolModal() {
+      document.getElementById('tool-modal').classList.add('hidden');
+    }
+
+    function switchToolTab(tab) {
+      const calcBtn = document.getElementById('tab-tool-calc');
+      const convBtn = document.getElementById('tab-tool-conv');
+      const body = document.getElementById('tool-modal-body');
+
+      if (tab === 'calc') {
+        calcBtn.className = 'px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold bg-electric-500 text-navy-950 transition';
+        convBtn.className = 'px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold bg-navy-900 text-slate-300 hover:text-white border border-slate-700 transition';
+        body.innerHTML = renderFormulaAndScientificCalc();
+        bindFormulaCalcEvents();
+      } else {
+        convBtn.className = 'px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold bg-electric-500 text-navy-950 transition';
+        calcBtn.className = 'px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold bg-navy-900 text-slate-300 hover:text-white border border-slate-700 transition';
+        body.innerHTML = renderUnitConverterUI();
+        recalcUnitConverter();
+      }
+    }
+
+    function renderFormulaAndScientificCalc() {
+      return `
+        <div class="space-y-4">
+          <div class="space-y-1.5">
+            <label class="text-xs font-bold uppercase tracking-wider text-electric-400">Kalkulator Rumus Fisika Kelas X</label>
+            <select id="formula-select" class="w-full px-3 py-2.5 rounded-xl bg-navy-950 border border-slate-700 text-sm text-white focus:border-electric-400 outline-none">
+              ${MODULES.map((m, idx) => `<option value="${idx}">${m.title} — ${m.calcPreset.name}</option>`).join('')}
+            </select>
+          </div>
+
+          <div id="formula-inputs" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+
+          <div id="formula-output" class="p-4 rounded-xl bg-navy-950 border border-electric-500/30 space-y-1">
+            <!-- Hasil rumus -->
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-800 space-y-3">
+          <label class="text-xs font-bold uppercase tracking-wider text-electric-400">Kalkulator Ilmiah Cepat</label>
+          <div class="flex gap-2">
+            <input id="sci-expr" type="text" value="sqrt(144) + sin(30 * pi / 180) * 10" class="flex-1 px-3 py-2 rounded-xl bg-navy-950 border border-slate-700 font-mono text-sm text-white outline-none focus:border-electric-400" placeholder="Contoh: 2 * 9.8 * 5 atau pow(3, 2)" />
+            <button onclick="evalScientificExpr()" class="px-4 py-2 rounded-xl bg-electric-500 hover:bg-electric-400 text-navy-950 font-bold text-sm transition">
+              Hitung
+            </button>
+          </div>
+          <div id="sci-result" class="font-mono text-sm text-emerald-400 bg-navy-950 px-3.5 py-2.5 rounded-xl border border-slate-800">
+            Hasil: siap dihitung
+          </div>
+        </div>
+      `;
+    }
+
+    function bindFormulaCalcEvents() {
+      const sel = document.getElementById('formula-select');
+      if (!sel) return;
+
+      const renderVars = () => {
+        const mod = MODULES[parseInt(sel.value, 10)] || MODULES[0];
+        const preset = mod.calcPreset;
+        const container = document.getElementById('formula-inputs');
+        container.innerHTML = preset.vars.map((v) => `
+          <div>
+            <label class="block text-xs text-slate-300 mb-1">${v.label}</label>
+            <input data-var="${v.id}" type="number" step="any" value="${v.val}" class="formula-var-input w-full px-3 py-2 rounded-xl bg-navy-950 border border-slate-700 font-mono text-sm text-white outline-none focus:border-electric-400" />
+          </div>
+        `).join('');
+
+        const computeNow = () => {
+          const vals = {};
+          container.querySelectorAll('.formula-var-input').forEach((inp) => {
+            vals[inp.dataset.var] = parseFloat(inp.value) || 0;
+          });
+          const out = preset.compute(vals);
+          document.getElementById('formula-output').innerHTML = `
+            <div class="text-base font-extrabold font-mono text-emerald-400">${out.result}</div>
+            <div class="text-xs font-mono text-slate-300">${out.explanation}</div>
+          `;
+        };
+
+        container.querySelectorAll('.formula-var-input').forEach((inp) => {
+          inp.addEventListener('input', computeNow);
+        });
+        computeNow();
+      };
+
+      sel.addEventListener('change', renderVars);
+      renderVars();
+      evalScientificExpr();
+    }
+
+    function evalScientificExpr() {
+      const inp = document.getElementById('sci-expr');
+      const out = document.getElementById('sci-result');
+      if (!inp || !out) return;
+      try {
+        const expr = inp.value
+          .replace(/\bpi\b/gi, 'Math.PI')
+          .replace(/\bsqrt\b/gi, 'Math.sqrt')
+          .replace(/\bsin\b/gi, 'Math.sin')
+          .replace(/\bcos\b/gi, 'Math.cos')
+          .replace(/\btan\b/gi, 'Math.tan')
+          .replace(/\babs\b/gi, 'Math.abs')
+          .replace(/\bpow\b/gi, 'Math.pow')
+          .replace(/\bln\b/gi, 'Math.log')
+          .replace(/\blog\b/gi, 'Math.log10')
+          .replace(/\^/g, '**');
+        if (/[a-df-zA-DF-Z_$]/.test(expr.replace(/Math\.[A-Za-z0-9]+/g, ''))) throw new Error('bad');
+        const val = Function(`"use strict"; return (${expr});`)();
+        out.textContent = `Hasil: ${Number.isFinite(val) ? Number(val.toFixed(6)) : 'Tidak terdefinisi'}`;
+      } catch (e) {
+        out.textContent = 'Ekspresi tidak valid. Gunakan angka & fungsi seperti sqrt(), sin(), cos().';
+      }
+    }
+
+    const UNIT_CATEGORIES = {
+      panjang: {
+        label: 'Panjang',
+        units: { m: 1, km: 1000, cm: 0.01, mm: 0.001 }
+      },
+      massa: {
+        label: 'Massa',
+        units: { kg: 1, g: 0.001, mg: 0.000001, ton: 1000 }
+      },
+      waktu: {
+        label: 'Waktu',
+        units: { s: 1, menit: 60, jam: 3600, ms: 0.001 }
+      },
+      kecepatan: {
+        label: 'Kecepatan',
+        units: { 'm/s': 1, 'km/jam': 1000 / 3600 }
+      },
+      gaya: {
+        label: 'Gaya',
+        units: { N: 1, kN: 1000, dyne: 0.00001 }
+      },
+      energi: {
+        label: 'Energi',
+        units: { J: 1, kJ: 1000, kal: 4.184, kkal: 4184 }
+      }
+    };
+
+    function renderUnitConverterUI() {
+      return `
+        <div class="space-y-4">
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-electric-400 mb-1.5">Kategori Besaran</label>
+            <select id="conv-cat" onchange="populateConvUnits(); recalcUnitConverter();" class="w-full px-3 py-2.5 rounded-xl bg-navy-950 border border-slate-700 text-sm text-white outline-none">
+              ${Object.entries(UNIT_CATEGORIES).map(([k, v]) => `<option value="${k}">${v.label}</option>`).join('')}
+            </select>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
+            <div>
+              <label class="block text-xs text-slate-300 mb-1">Nilai</label>
+              <input id="conv-val" type="number" step="any" value="100" oninput="recalcUnitConverter()" class="w-full px-3 py-2 rounded-xl bg-navy-950 border border-slate-700 font-mono text-sm text-white outline-none" />
+            </div>
+            <div>
+              <label class="block text-xs text-slate-300 mb-1">Dari Satuan</label>
+              <select id="conv-from" onchange="recalcUnitConverter()" class="w-full px-3 py-2 rounded-xl bg-navy-950 border border-slate-700 font-mono text-sm text-white outline-none"></select>
+            </div>
+            <div>
+              <label class="block text-xs text-slate-300 mb-1">Ke Satuan</label>
+              <select id="conv-to" onchange="recalcUnitConverter()" class="w-full px-3 py-2 rounded-xl bg-navy-950 border border-slate-700 font-mono text-sm text-white outline-none"></select>
+            </div>
+          </div>
+
+          <div id="conv-output" class="p-4 rounded-xl bg-navy-950 border border-electric-500/30 font-mono text-base font-bold text-electric-300">
+            <!-- Hasil konversi -->
+          </div>
+        </div>
+      `;
+    }
+
+    function populateConvUnits() {
+      const catKey = document.getElementById('conv-cat')?.value || 'panjang';
+      const keys = Object.keys(UNIT_CATEGORIES[catKey].units);
+      const fromSel = document.getElementById('conv-from');
+      const toSel = document.getElementById('conv-to');
+      if (!fromSel || !toSel) return;
+
+      fromSel.innerHTML = keys.map((u) => `<option value="${u}">${u}</option>`).join('');
+      toSel.innerHTML = keys.map((u, idx) => `<option value="${u}" ${idx === 1 ? 'selected' : ''}>${u}</option>`).join('');
+    }
+
+    function recalcUnitConverter() {
+      const fromSel = document.getElementById('conv-from');
+      if (fromSel && fromSel.options.length === 0) {
+        populateConvUnits();
+      }
+      const catKey = document.getElementById('conv-cat')?.value || 'panjang';
+      const val = parseFloat(document.getElementById('conv-val')?.value || '0') || 0;
+      const fromU = document.getElementById('conv-from')?.value;
+      const toU = document.getElementById('conv-to')?.value;
+      const outEl = document.getElementById('conv-output');
+      if (!fromU || !toU || !outEl) return;
+
+      const factors = UNIT_CATEGORIES[catKey].units;
+      const baseVal = val * factors[fromU];
+      const converted = baseVal / factors[toU];
+      outEl.textContent = `${val} ${fromU} = ${Number(converted.toPrecision(6))} ${toU}`;
+    }
+
+    /* =========================================================================
+       13. INISIALISASI PERTAMA KALI
+       ========================================================================= */
+    window.addEventListener('DOMContentLoaded', () => {
+      navigateTo('home');
+    });
+  </script>
+</body>
+</html>
